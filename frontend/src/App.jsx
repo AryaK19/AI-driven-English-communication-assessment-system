@@ -4,6 +4,7 @@ import Navbar from './components/layout/Navbar';
 import Home from './components/pages/Home';
 import Footer from './components/layout/Footer';
 import Dashboard from './components/pages/Dashboard';
+import Video from './components/pages/Video';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Routes>
             {/* <Route path="/" element={<Home />} /> */}
             <Route path="/" element={<Dashboard />} />
+            <Route path="/video" element={<Video />} />
           </Routes>
         </main>
         <Footer />

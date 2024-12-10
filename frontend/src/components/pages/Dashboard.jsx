@@ -1,18 +1,27 @@
 // frontend/src/components/pages/Dashboard.jsx
 import React from 'react'
-import { 
-  Home, 
-  FileText, 
-  Settings, 
-  LogOut, 
-  Mic, 
-  VideoIcon, 
-  BookOpen, 
+import {
+  Home,
+  FileText,
+  Settings,
+  LogOut,
+  Mic,
+  VideoIcon,
+  BookOpen,
   MessageSquare,
   ChevronRight
 } from 'lucide-react'
+import { useNavigate, useParams } from 'react-router-dom';
+
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const { type } = useParams();
+
+  const handleStartAssessment = (type) => {
+    navigate(`/video`);
+  }
+
   const sidebarLinks = [
     { icon: <Home size={20} />, label: 'Overview', path: '/dashboard' },
     { icon: <FileText size={20} />, label: 'Reports', path: '/reports' },
@@ -58,12 +67,12 @@ function Dashboard() {
           <div className="p-4">
             <h2 className="text-2xl font-bold text-brand-blue">Dashboard</h2>
           </div>
-          
+
           <nav className="flex-1 p-4">
             <ul className="space-y-2">
               {sidebarLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
+                  <a
                     href={link.path}
                     className="flex items-center space-x-3 text-gray-600 p-3 rounded-lg hover:bg-gray-50 hover:text-brand-blue transition-colors"
                   >
@@ -96,7 +105,7 @@ function Dashboard() {
           {/* Assessment Grid */}
           <div className="grid md:grid-cols-2 gap-6">
             {assessmentTypes.map((assessment, index) => (
-              <div 
+              <div
                 key={index}
                 className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer"
               >
@@ -112,7 +121,7 @@ function Dashboard() {
                 <p className="mt-2 text-gray-600">
                   {assessment.description}
                 </p>
-                <button className="mt-4 text-brand-blue flex items-center text-sm hover:text-brand-purple transition-colors">
+                <button onClick={() => handleStartAssessment()} className="mt-4 text-brand-blue flex items-center text-sm hover:text-brand-purple transition-colors">
                   Start Assessment <ChevronRight className="w-4 h-4 ml-1" />
                 </button>
               </div>

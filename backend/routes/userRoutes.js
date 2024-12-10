@@ -12,4 +12,12 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/video', async (req, res) => {
+  res.json({ message: 'video' })
+})
+
+router.post('/video', async (req, res) => {
+  res.send("Submitted video");
+})
+
 export default router;
