@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Mic, MicOff, ChevronRight, Volume2 } from "lucide-react";
-import ConversationLayout from "../layouts/ConversationLayout";
-import WaveformVisualizer from "../components/WaveformVisualizer";
+import ConversationLayout from "../../layouts/ConversationLayout";
+import WaveformVisualizer from "../../components/WaveformVisualizer";
 
 function GrammarAssessment() {
   const [isRecording, setIsRecording] = useState(false);
@@ -103,9 +103,8 @@ function GrammarAssessment() {
           <div
             className="bg-gradient-to-r from-brand-blue via-brand-purple to-brand-orange rounded-full h-3 transition-all duration-300"
             style={{
-              width: `${
-                ((currentQuestionIndex + 1) / questions.length) * 100
-              }%`,
+              width: `${((currentQuestionIndex + 1) / questions.length) * 100
+                }%`,
             }}
           />
         </div>
@@ -127,11 +126,10 @@ function GrammarAssessment() {
         <div className="relative">
           <button
             onClick={handleRecord}
-            className={`p-6 rounded-full transition-all duration-300 shadow-lg ${
-              isRecording
-                ? "bg-brand-red text-white animate-pulse ring-4 ring-red-200"
-                : "bg-gradient-to-r from-brand-blue to-brand-purple text-white hover:from-brand-purple hover:to-brand-orange"
-            }`}
+            className={`p-6 rounded-full transition-all duration-300 shadow-lg ${isRecording
+              ? "bg-brand-red text-white animate-pulse ring-4 ring-red-200"
+              : "bg-gradient-to-r from-brand-blue to-brand-purple text-white hover:from-brand-purple hover:to-brand-orange"
+              }`}
           >
             {isRecording ? (
               <MicOff className="w-8 h-8" />
@@ -149,7 +147,7 @@ function GrammarAssessment() {
 
         {/* Waveform Visualizer */}
         <div className="w-full max-w-md p-4 bg-gray-50 rounded-xl shadow-inner">
-          <WaveformVisualizer isRecording={isRecording} stream={audioStream}/>
+          <WaveformVisualizer isRecording={isRecording} stream={audioStream} />
         </div>
 
         <span className="text-sm font-medium px-3 py-1 rounded-full bg-gray-100">
@@ -162,11 +160,10 @@ function GrammarAssessment() {
         <button
           onClick={handleNext}
           disabled={currentQuestionIndex === questions.length - 1}
-          className={`flex items-center space-x-2 px-6 py-3 rounded-lg shadow-md ${
-            currentQuestionIndex === questions.length - 1
-              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-              : "bg-gradient-to-r from-brand-blue to-brand-purple hover:from-brand-purple hover:to-brand-orange text-white transform hover:scale-105"
-          } transition-all duration-300`}
+          className={`flex items-center space-x-2 px-6 py-3 rounded-lg shadow-md ${currentQuestionIndex === questions.length - 1
+            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+            : "bg-gradient-to-r from-brand-blue to-brand-purple hover:from-brand-purple hover:to-brand-orange text-white transform hover:scale-105"
+            } transition-all duration-300`}
         >
           <span>Next Question</span>
           <ChevronRight className="w-4 h-4" />

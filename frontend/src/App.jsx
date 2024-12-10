@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import { Dashboard } from "./pages/Dashboard/index";
 import { GrammarAssessment } from "./pages/Assessment";
 import { Login, Register } from "./pages/authentication";
+import Video from './components/pages/Video';
 
 function App() {
   return (
