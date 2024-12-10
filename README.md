@@ -77,10 +77,10 @@ day 1:
 4. firebase
 
 
-5. user input: (STT, grammer and pronounciation, pace, and all )
+5. user input: (STT,, pace , and all )
 
 
-6. feedback ( graphs, tests, ui)
+6. feedback ( grammer and pronounciation, graphs, tests, ui)
 
 
 

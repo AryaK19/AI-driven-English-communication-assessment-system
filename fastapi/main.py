@@ -17,5 +17,10 @@ app.add_middleware(
 
 init_db()
 
+@app.get("/", tags=["root"])
+async def read_root() -> dict:
+    return {"message": "Welcome to your new project!"}
+
+
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
