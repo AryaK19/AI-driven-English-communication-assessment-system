@@ -15,7 +15,9 @@ import {
   XCircle,
   Loader,
   FileText,
-  ArrowLeft
+  ArrowLeft,
+  Send,
+  RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WaveformVisualizer from "../../components/WaveformVisualizer";
@@ -28,19 +30,24 @@ function GrammarAssessment() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [assessmentStage, setAssessmentStage] = useState("preview");
+  const [assessmentStage, setAssessmentStage] = useState("preview"); // preview, recording, review
   const [transcribedText, setTranscribedText] = useState("");
   const [feedbackData, setFeedbackData] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [setupData, setSetupData] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [recordedBlob, setRecordedBlob] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const timerRef = useRef(null);
   const [mediaStream, setMediaStream] = useState(null);
   const videoRef = useRef(null);
+  const previewVideoRef = useRef(null);
 
   const MAX_RECORDING_TIME = 120; // 2 minutes
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
   const questionIcons = [
     <Clock key="clock" className="text-brand-blue" size={24} />,
@@ -75,11 +82,9 @@ function GrammarAssessment() {
         }
 
         const data = await response.json();
-        
-        // Ensure we have an array of questions
-        const questionsList = Array.isArray(data.questions) ? data.questions : 
-                            Array.isArray(data) ? data : [];
-        
+        const questionsList = Array.isArray(data.questions) ? data.questions :
+          Array.isArray(data) ? data : [];
+
         if (questionsList.length === 0) {
           throw new Error('No questions received from the server');
         }
@@ -99,48 +104,64 @@ function GrammarAssessment() {
     return () => {
       stopRecording();
       if (timerRef.current) clearInterval(timerRef.current);
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [navigate]);
 
   const sendMediaToServer = async (mediaBlob) => {
     setIsLoading(true);
     setError(null);
+    setUploadProgress(0);
 
     try {
       if (!mediaBlob || mediaBlob.size === 0) {
         throw new Error("No recording data available");
       }
 
+      // First upload to S3
       const formData = new FormData();
-      formData.append(
-        "file",
-        mediaBlob,
-        `question_${currentQuestionIndex}.webm`
-      );
-      formData.append("questionIndex", currentQuestionIndex);
+      formData.append("file", mediaBlob, `question_${currentQuestionIndex}.webm`);
+      formData.append("questionIndex", currentQuestionIndex.toString());
 
-      const response = await fetch("http://localhost:8000/process-audio", {
+      const uploadResponse = await fetch(`${BACKEND_URL}/upload`, {
         method: "POST",
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload failed: ${errorText || response.statusText}`);
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || 'Failed to upload video');
       }
 
-      const data = await response.json();
-      
-      if (data.status === "success" && data.text) {
-        setTranscribedText(data.text);
-        
+      const s3Data = await uploadResponse.json();
+      console.log("Uploaded to S3:", s3Data.url);
+
+      // Then process the audio
+      const processFormData = new FormData();
+      processFormData.append("file", mediaBlob, `question_${currentQuestionIndex}.webm`);
+
+      const processResponse = await fetch("http://localhost:8000/process-audio", {
+        method: "POST",
+        body: processFormData,
+      });
+
+      if (!processResponse.ok) {
+        const errorText = await processResponse.text();
+        throw new Error(`Processing failed: ${errorText || processResponse.statusText}`);
+      }
+
+      const processData = await processResponse.json();
+
+      if (processData.status === "success" && processData.text) {
+        setTranscribedText(processData.text);
+
         // Get feedback analysis
         const feedbackResponse = await fetch("http://localhost:8000/analyze-text", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify({ text: data.text }),
+          body: JSON.stringify({ text: processData.text })
         });
 
         if (!feedbackResponse.ok) {
@@ -148,36 +169,49 @@ function GrammarAssessment() {
         }
 
         const feedbackResult = await feedbackResponse.json();
-        
-        // Store feedback for current question
+
         setFeedbackData(prev => {
           const newFeedback = [...prev];
           newFeedback[currentQuestionIndex] = {
-            text: data.text,
+            text: processData.text,
             grammar: feedbackResult.grammar,
-            pronunciation: feedbackResult.pronunciation
+            pronunciation: feedbackResult.pronunciation,
+            videoUrl: s3Data.url
           };
           return newFeedback;
         });
+
+        // Clear the recorded blob and preview after successful upload
+        setRecordedBlob(null);
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          setPreviewUrl(null);
+        }
+        setAssessmentStage("complete");
       } else {
-        setError(data.message || "Failed to transcribe audio");
+        setError(processData.message || "Failed to transcribe audio");
       }
 
-      return data;
+      return processData;
     } catch (error) {
       console.error("Upload error:", error);
-      setError(
-        error.message || "Failed to upload recording. Please try again."
-      );
+      setError(error.message || "Failed to upload recording. Please try again.");
       throw error;
     } finally {
       setIsLoading(false);
+      setUploadProgress(0);
     }
   };
 
   const startRecording = async () => {
     setError(null);
     setTranscribedText("");
+    setRecordedBlob(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -201,14 +235,10 @@ function GrammarAssessment() {
       mediaRecorderRef.current.onstop = async () => {
         stream.getTracks().forEach((track) => track.stop());
         const mediaBlob = new Blob(chunksRef.current, { type: "video/webm" });
-
-        try {
-          await sendMediaToServer(mediaBlob);
-          setAssessmentStage("review");
-        } catch (error) {
-          console.error("Failed to process recording:", error);
-          setAssessmentStage("preview");
-        }
+        setRecordedBlob(mediaBlob);
+        const url = URL.createObjectURL(mediaBlob);
+        setPreviewUrl(url);
+        setAssessmentStage("review");
       };
 
       mediaRecorderRef.current.start();
@@ -253,6 +283,29 @@ function GrammarAssessment() {
     }
   };
 
+  const handleSubmitRecording = async () => {
+    if (!recordedBlob) {
+      setError("No recording available to submit");
+      return;
+    }
+
+    try {
+      await sendMediaToServer(recordedBlob);
+    } catch (error) {
+      console.error("Failed to process recording:", error);
+      setAssessmentStage("preview");
+    }
+  };
+
+  const retakeRecording = () => {
+    setRecordedBlob(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    setAssessmentStage("preview");
+  };
+
   const nextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
@@ -260,6 +313,11 @@ function GrammarAssessment() {
       setError(null);
       setRecordingDuration(0);
       setTranscribedText("");
+      setRecordedBlob(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
     }
   };
 
@@ -270,11 +328,15 @@ function GrammarAssessment() {
     setRecordingDuration(0);
     setTranscribedText("");
     setFeedbackData([]);
+    setRecordedBlob(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
     stopRecording();
   };
 
   const viewFeedback = () => {
-    // Store feedback data in localStorage to access it in the feedback page
     localStorage.setItem('assessmentFeedback', JSON.stringify({
       questions,
       feedback: feedbackData,
@@ -404,7 +466,7 @@ function GrammarAssessment() {
           {/* Recording Interface */}
           <div className="relative">
             <AnimatePresence>
-              {!isRecording ? (
+              {!isRecording && !recordedBlob ? (
                 <motion.button
                   key="start-recording"
                   initial={{ scale: 0.9, opacity: 0 }}
@@ -418,7 +480,7 @@ function GrammarAssessment() {
                   <Video size={20} />
                   Start Recording
                 </motion.button>
-              ) : (
+              ) : isRecording ? (
                 <motion.div
                   key="recording-wave"
                   initial={{ height: 64, opacity: 0.8 }}
@@ -431,6 +493,37 @@ function GrammarAssessment() {
                     stream={mediaStream}
                   />
                 </motion.div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-white rounded-xl p-4 shadow-md">
+                    <video
+                      ref={previewVideoRef}
+                      src={previewUrl}
+                      controls
+                      className="w-full rounded-lg"
+                    />
+                  </div>
+                  <div className="flex gap-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={retakeRecording}
+                      className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-gray-200 transition-colors"
+                    >
+                      <RefreshCw size={18} />
+                      Retake
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleSubmitRecording}
+                      className="flex-1 bg-gradient-to-r from-brand-blue to-brand-purple text-white py-3 rounded-xl flex items-center justify-center gap-2 font-medium shadow-md hover:shadow-lg transition-all"
+                    >
+                      <Send size={18} />
+                      Submit Response
+                    </motion.button>
+                  </div>
+                </div>
               )}
             </AnimatePresence>
 
@@ -455,6 +548,19 @@ function GrammarAssessment() {
               </motion.button>
             )}
           </div>
+
+          {/* Upload Progress */}
+          {uploadProgress > 0 && uploadProgress < 100 && (
+            <div className="mt-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-brand-blue h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">Uploading: {uploadProgress}%</p>
+            </div>
+          )}
 
           {/* Transcribed Text Display */}
           {transcribedText && (

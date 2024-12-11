@@ -7,6 +7,7 @@ import { Login, Register } from "./pages/authentication";
 import { Home } from "./pages/Home";
 import { Navbar, PrivateRoute, LoadingScreen } from "./components";
 
+
 function App() {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);

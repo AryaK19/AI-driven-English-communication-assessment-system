@@ -7,8 +7,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize the Groq client with API key
-GROQ_API_KEY = "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"
-client = Groq(api_key=GROQ_API_KEY)
+os.environ['GROQ_API_KEY'] = "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"
+client = Groq(api_key=os.environ['GROQ_API_KEY'])
 
 async def process_audio_file(file_path: str, language: str = "en") -> dict:
     """

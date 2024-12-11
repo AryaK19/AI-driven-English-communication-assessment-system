@@ -75,7 +75,7 @@ def extract_questions_from_text(text: str, num_questions: int) -> List[str]:
 
 def generate_questions(setup: AssessmentSetup) -> List[str]:
     client = Groq(
-        api_key=os.environ.get("GROQ_API_KEY"),
+        api_key="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",
     )
 
     prompt = generate_prompt(setup)
