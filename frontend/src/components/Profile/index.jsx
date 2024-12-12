@@ -132,7 +132,7 @@ export default function Profile() {
           alignItems="center"
           sx={{ p: 0.5 }}
         >
-          <Avatar alt="profile user" src={profileImage || avatar1} size="sm" />
+          <Avatar alt="profile user" src={avatar1} size="sm" />
           <Typography variant="subtitle1" sx={{ textTransform: "capitalize" }}>
             {JSON.parse(localStorage.getItem("currUser"))?.username || "Guest"}
           </Typography>
@@ -187,7 +187,7 @@ export default function Profile() {
                         >
                           <Avatar
                             alt="profile user"
-                            src={profileImage || avatar1}
+                            src={avatar1}
                             sx={{ width: 32, height: 32 }}
                           />
                           <Stack>
