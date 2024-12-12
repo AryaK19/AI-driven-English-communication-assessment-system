@@ -146,14 +146,9 @@ class FeedbackProcessor:
             return self._parse_grammar_response(analysis)
         except Exception as e:
             print(f"Error in analyze_grammar: {str(e)}")
-            # Return a properly structured response even in case of error
             return {
-                "error_count": 1,
-                "errors": [{
-                    "word": "Error analyzing grammar",
-                    "suggestion": "Please try again",
-                    "explanation": "There was an error processing your text. Please try again."
-                }]
+                "error_count": 0,
+                "errors": []
             }
 
     async def analyze_pronunciation(self, text: str) -> Dict:
@@ -179,34 +174,10 @@ class FeedbackProcessor:
             return self._parse_pronunciation_response(analysis)
         except Exception as e:
             print(f"Error in analyze_pronunciation: {str(e)}")
-            # Return a properly structured response even in case of error
             return {
-                "error_count": 1,
-                "errors": [{
-                    "word": "Error analyzing pronunciation",
-                    "phonetic": "N/A",
-                    "explanation": "There was an error processing your text. Please try again."
-                }]
+                "error_count": 0,
+                "errors": []
             }
-<<<<<<< Updated upstream
-=======
-        
-    async def analyze_pauses(self, text: str, tempFileName: str) -> Dict:
-        """
-        Analyze text for pauses using the pause count from the audio file.
-        """
-        try:
-            # Get the pause count from the audio file
-            pause_analysis = get_pause_count(tempFileName)
-            return pause_analysis
-        except Exception as e:
-            print(f"Error in analyze_pauses: {str(e)}")
-            return {
-                "total_pauses": 0,
-                "pause_details": [],
-                "total_pause_duration": 0
-            }
->>>>>>> Stashed changes
 
     def _parse_grammar_response(self, response: str) -> Dict:
         """
@@ -222,12 +193,8 @@ class FeedbackProcessor:
         except Exception as e:
             print(f"Error parsing grammar response: {str(e)}")
             return {
-                "error_count": 1,
-                "errors": [{
-                    "word": "Error parsing grammar analysis",
-                    "suggestion": "Please try again",
-                    "explanation": "There was an error analyzing your text. Please try again."
-                }]
+                "error_count": 0,
+                "errors": []
             }
 
     def _parse_pronunciation_response(self, response: str) -> Dict:
@@ -244,19 +211,11 @@ class FeedbackProcessor:
         except Exception as e:
             print(f"Error parsing pronunciation response: {str(e)}")
             return {
-                "error_count": 1,
-                "errors": [{
-                    "word": "Error parsing pronunciation analysis",
-                    "phonetic": "N/A",
-                    "explanation": "There was an error analyzing your text. Please try again."
-                }]
+                "error_count": 0,
+                "errors": []
             }
 
-<<<<<<< Updated upstream
     async def analyze_text(self, text: str, question: Optional[str] = None) -> Dict:
-=======
-    async def analyze_text(self, text: str, question: Optional[str] = None, tempFileName: str = '') -> Dict:
->>>>>>> Stashed changes
         """
         Analyze text for grammar, pronunciation, vocabulary, fluency and answer correctness.
         """
@@ -264,12 +223,7 @@ class FeedbackProcessor:
         pronunciation_analysis = await self.analyze_pronunciation(text)
         vocabulary_analysis = analyze_vocabulary(text)
         fluency_analysis = self.analyze_fluency(text)
-<<<<<<< Updated upstream
         
-=======
-        pause_analysis = await self.analyze_pauses(text, tempFileName)
-    
->>>>>>> Stashed changes
         # Add answer correctness analysis if question is provided
         correctness_analysis = None
         if question:
@@ -280,10 +234,6 @@ class FeedbackProcessor:
             "pronunciation": pronunciation_analysis,
             "vocabulary": vocabulary_analysis,
             "fluency": fluency_analysis,
-<<<<<<< Updated upstream
-=======
-            "pause_count": pause_analysis.get("total_pauses", 0),  # Use get() with default value
->>>>>>> Stashed changes
             "text": text
         }
 

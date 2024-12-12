@@ -79,34 +79,22 @@ const FeedbackPage = () => {
   // Calculate overall statistics and performance percentages
   const overallStats = assessmentData.feedback.reduce((acc, questionFeedback) => {
     if (questionFeedback) {
-      // Add null checks for each property
-      acc.totalGrammarErrors += questionFeedback.grammar?.error_count || 0;
-      acc.totalPronunciationErrors += questionFeedback.pronunciation?.error_count || 0;
-      
+      acc.totalGrammarErrors += questionFeedback.grammar.error_count;
+      acc.totalPronunciationErrors += questionFeedback.pronunciation.error_count;
       if (questionFeedback.fluency) {
-        acc.totalFluencyScore += questionFeedback.fluency.fluency_score || 0;
-        acc.totalFillerWords += questionFeedback.fluency.filler_word_count || 0;
+        acc.totalFluencyScore += questionFeedback.fluency.fluency_score;
+        acc.totalFillerWords += questionFeedback.fluency.filler_word_count;
         acc.fluencyCount += 1;
       }
-      
       if (questionFeedback.vocabulary) {
-        acc.totalVocabularyScore += questionFeedback.vocabulary.vocabulary_score || 0;
-        acc.totalAdvancedWords += questionFeedback.vocabulary.total_advanced_words || 0;
+        acc.totalVocabularyScore += questionFeedback.vocabulary.vocabulary_score;
+        acc.totalAdvancedWords += questionFeedback.vocabulary.total_advanced_words;
         acc.vocabularyCount += 1;
       }
-      
       if (questionFeedback.correctness) {
-        acc.totalCorrectnessScore += questionFeedback.correctness.score || 0;
+        acc.totalCorrectnessScore += questionFeedback.correctness.score;
         acc.correctnessCount += 1;
       }
-<<<<<<< Updated upstream
-=======
-      
-      if (questionFeedback.pause_count !== undefined) {
-        acc.totalPauses += questionFeedback.pause_count;
-        acc.pauseCount += 1;
-      }
->>>>>>> Stashed changes
     }
     return acc;
   }, { 
