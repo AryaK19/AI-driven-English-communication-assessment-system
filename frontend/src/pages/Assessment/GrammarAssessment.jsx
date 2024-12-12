@@ -67,6 +67,7 @@ function GrammarAssessment() {
     
 
     try {
+<<<<<<< HEAD
       // Get the current question text from questions array
       const currentQuestionText = questions[currentQuestionIndex];
   
@@ -77,6 +78,9 @@ function GrammarAssessment() {
         currentQuestionText
       );
       
+=======
+      const result = await sendMediaToServer(mediaBlob, currentQuestionIndex);
+>>>>>>> parent of 2a7344b (commit with deteiled error solved)
       setTranscribedText(result.transcribedText);
       
       // Create a URL for the video blob

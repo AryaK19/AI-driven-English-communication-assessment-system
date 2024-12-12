@@ -122,10 +122,13 @@ const FeedbackPage = () => {
         acc.totalCorrectnessScore += questionFeedback.correctness.score;
         acc.correctnessCount += 1;
       }
+<<<<<<< HEAD
       if (questionFeedback.pause_count !== undefined) {
         acc.totalPauses += questionFeedback.pause_count;
         acc.pauseCount += 1;
       }
+=======
+>>>>>>> parent of 2a7344b (commit with deteiled error solved)
     }
     return acc;
   }, { 
