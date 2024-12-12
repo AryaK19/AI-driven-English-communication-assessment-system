@@ -7,17 +7,11 @@ const assessmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    questions: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Question", // Referencing the Question schema
-      },
-    ],
     dateAndTime: {
       type: Date,
       default: Date.now,
     },
-    overallReport: {
+    overallFeedback: {
       type: String, // or an object for detailed reporting
     },
   },

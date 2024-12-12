@@ -18,6 +18,8 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
 
 
 
+
+
   const assessmentToSave = {
     ...assessmentData,
     videoUrls: uploadedUrls,
