@@ -66,7 +66,7 @@ function GrammarAssessment() {
     setError(null);
 
     try {
-      const result = await sendMediaToServer(mediaBlob, currentQuestionIndex);
+      const result = await sendMediaToServer(mediaBlob, currentQuestionIndex, setupData?.language || "English");
       setTranscribedText(result.transcribedText);
       
       // Create a URL for the video blob
