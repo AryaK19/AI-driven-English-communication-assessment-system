@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 // material-ui
 import ButtonBase from "@mui/material/ButtonBase";
@@ -16,12 +16,15 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
+import Transitions from "@mui/material/Fade";
+import { useNavigate } from "react-router-dom";
 
 // project import
 import ProfileTab from "./ProfileTab";
 import SettingTab from "./SettingTab";
 import MainCard from "../MainCard";
-import Transitions from "@mui/material/Fade";
+import { logoutUser } from "../../services/logoutUser";
+import { auth } from "./../../../firebase/firebase";
 
 // assets
 import LogoutOutlined from "@ant-design/icons/LogoutOutlined";
@@ -75,9 +78,33 @@ export default function Profile() {
   };
 
   const [value, setValue] = useState(0);
+  const [profileImage, setProfileImage] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+  };
+
+  useEffect(() => {
+    // Check the current user from Firebase
+    const currentUser = auth.currentUser;
+    if (currentUser && currentUser.photoURL) {
+      setProfileImage(currentUser.photoURL);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("Profile Image updated:", profileImage);
+  }, [profileImage]);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      navigate("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      alert("Failed to log out. Please try again.");
+    }
   };
 
   return (
@@ -107,7 +134,7 @@ export default function Profile() {
         >
           <Avatar alt="profile user" src={avatar1} size="sm" />
           <Typography variant="subtitle1" sx={{ textTransform: "capitalize" }}>
-            John Doe
+            {JSON.parse(localStorage.getItem("currUser"))?.username || "Guest"}
           </Typography>
         </Stack>
       </ButtonBase>
@@ -164,7 +191,11 @@ export default function Profile() {
                             sx={{ width: 32, height: 32 }}
                           />
                           <Stack>
-                            <Typography variant="h6">John Doe</Typography>
+                            <Typography variant="h6">
+                              {" "}
+                              {JSON.parse(localStorage.getItem("currUser"))
+                                ?.username || "Guest"}
+                            </Typography>
                             <Typography variant="body2" color="text.secondary">
                               UI/UX Designer
                             </Typography>
@@ -173,7 +204,11 @@ export default function Profile() {
                       </Grid>
                       <Grid item>
                         <Tooltip title="Logout">
-                          <IconButton size="large" sx={{ color: textPrimary }}>
+                          <IconButton
+                            size="large"
+                            sx={{ color: textPrimary }}
+                            onClick={handleLogout}
+                          >
                             <LogoutOutlined />
                           </IconButton>
                         </Tooltip>
