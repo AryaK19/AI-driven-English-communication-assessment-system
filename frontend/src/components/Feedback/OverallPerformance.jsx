@@ -33,11 +33,11 @@ const OverallPerformance = ({
 
   // Calculate overall score with weighted metrics
   const calculatedOverallScore = Math.round(
-    (grammarPerformance * 0.25) +      // 25% weight for grammar
-    (pronunciationPerformance * 0.20) + // 20% weight for pronunciation
-    (fluencyPerformance * 0.20) +       // 20% weight for fluency
-    (pausePerformance * 0.15) +         // 15% weight for speech pauses
-    (correctnessPerformance * 0.20)     // 20% weight for answer correctness
+    (grammarPerformance * 0.20) +      // 25% weight for grammar
+    (pronunciationPerformance * 0.15) + // 20% weight for pronunciation
+    (fluencyPerformance * 0.15) +       // 20% weight for fluency
+    (pausePerformance * 0.10) +         // 15% weight for speech pauses
+    (correctnessPerformance * 0.40)     // 20% weight for answer correctness (using the new score)
   );
 
   // Define metrics with special handling for vocabulary
@@ -48,7 +48,7 @@ const OverallPerformance = ({
       count: overallStats.totalGrammarErrors, 
       unit: 'mistakes',
       showPerformance: true,
-      weight: '25%'
+      weight: '20%'
     },
     { 
       label: 'Pronunciation', 
@@ -56,7 +56,7 @@ const OverallPerformance = ({
       count: overallStats.totalPronunciationErrors, 
       unit: 'challenges',
       showPerformance: true,
-      weight: '20%'
+      weight: '15%'
     },
     { 
       label: 'Fluency', 
@@ -64,7 +64,7 @@ const OverallPerformance = ({
       count: overallStats.totalFillerWords, 
       unit: 'filler words',
       showPerformance: true,
-      weight: '20%'
+      weight: '15%'
     },
     { 
       label: 'Speech Pauses', 
@@ -72,14 +72,7 @@ const OverallPerformance = ({
       count: overallStats.totalPauses, 
       unit: 'pauses',
       showPerformance: true,
-      weight: '15%'
-    },
-    { 
-      label: 'Answer Correctness', 
-      performance: correctnessPerformance, 
-      text: 'Based on relevance and completeness',
-      showPerformance: true,
-      weight: '20%'
+      weight: '10%'
     },
     { 
       label: 'Vocabulary', 
@@ -87,6 +80,13 @@ const OverallPerformance = ({
       unit: 'advanced words used',
       showPerformance: false
     },
+    { 
+      label: 'Answer Correctness', 
+      performance: correctnessPerformance, 
+      text: 'Based on relevance and quality',
+      showPerformance: true,
+      weight: '40%'
+    }
   ];
 
   return (

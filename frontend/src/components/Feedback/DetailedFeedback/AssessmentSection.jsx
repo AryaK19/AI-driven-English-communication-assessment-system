@@ -3,12 +3,24 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const AssessmentSection = ({ feedback }) => {
+  // Helper function to handle NaN values
+  const formatScore = (score) => {
+    if (score === undefined || isNaN(score)) return 0;
+    return score;
+  };
+
+
+
   const sections = [
     {
       title: 'Answer Assessment',
       content: feedback.correctness,
-      score: feedback.correctness?.score,
-      feedback: feedback.correctness?.detailed_feedback,
+      score: formatScore(feedback.correctness?.score),
+      relevanceScore: feedback.correctness?.relevance_score,
+      qualityScore: feedback.correctness?.quality_score,
+      relevance: feedback.correctness?.Relevance || 'No relevance feedback available',
+      quality: feedback.correctness?.Quality || 'No quality feedback available',
+      remark: feedback.correctness?.remark || 'No remarks available',
       bgColor: 'bg-blue-100',
       textColor: 'text-brand-blue',
       showScore: true
@@ -34,7 +46,7 @@ const AssessmentSection = ({ feedback }) => {
     {
       title: 'Fluency Assessment',
       content: feedback.fluency,
-      score: feedback.fluency?.fluency_score,
+      score: formatScore(feedback.fluency?.fluency_score),
       fillerCount: feedback.fluency?.filler_word_count,
       fillerWords: feedback.fluency?.filler_words,
       feedback: feedback.fluency?.feedback,
@@ -83,6 +95,66 @@ const AssessmentSection = ({ feedback }) => {
         </motion.li>
       ))}
     </ul>
+  );
+
+  const renderCorrectnessContent = (section) => (
+    <div className="mt-2 space-y-3">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <h4 className="text-sm font-medium text-gray-700">Relevance (out of 50)</h4>
+          <div className="flex items-center gap-2 mt-1">
+            <div className="flex-grow bg-gray-200 h-2 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(section.relevanceScore / 50) * 100}%` }}
+                className="h-full bg-brand-blue"
+              />
+            </div>
+            <span className="text-xs font-medium text-brand-blue">
+              {section.relevanceScore.toFixed(1)}/50
+            </span>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">{section.relevance}</p>
+        </div>
+        <div>
+          <h4 className="text-sm font-medium text-gray-700">Quality (out of 50)</h4>
+          <div className="flex items-center gap-2 mt-1">
+            <div className="flex-grow bg-gray-200 h-2 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(section.qualityScore / 50) * 100}%` }}
+                className="h-full bg-brand-blue"
+              />
+            </div>
+            <span className="text-xs font-medium text-brand-blue">
+              {section.qualityScore.toFixed(1)}/50
+            </span>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">{section.quality}</p>
+        </div>
+      </div>
+      <div className="mt-4">
+        <h4 className="text-sm font-medium text-gray-700">Overall Score</h4>
+        <div className="flex items-center gap-2 mt-1">
+          <div className="flex-grow bg-gray-200 h-2 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${section.score}%` }}
+              className="h-full bg-brand-blue"
+            />
+          </div>
+          <span className="text-xs font-medium text-brand-blue">
+            {section.score.toFixed(1)}/100
+          </span>
+        </div>
+      </div>
+      <div className="mt-4">
+        <h4 className="text-sm font-medium text-gray-700">Remarks</h4>
+        <p className="text-xs text-gray-600 mt-1 p-2 bg-gray-50 rounded">
+          {section.remark}
+        </p>
+      </div>
+    </div>
   );
 
   const renderFluencyContent = (section) => (
@@ -161,7 +233,7 @@ const AssessmentSection = ({ feedback }) => {
           >
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-semibold text-sm">{section.title}</h3>
-              {section.showScore && section.score !== undefined && (
+              {section.showScore && section.score !== undefined && section.title !== 'Answer Assessment' && (
                 <span className={`${section.bgColor} ${section.textColor} px-2 py-0.5 rounded-full text-xs`}>
                   {section.score}% score
                 </span>
@@ -178,6 +250,7 @@ const AssessmentSection = ({ feedback }) => {
               )}
             </div>
 
+            {section.title === 'Answer Assessment' && renderCorrectnessContent(section)}
             {section.errors && renderErrors(section.errors, section.title === 'Grammar Assessment')}
             {section.title === 'Fluency Assessment' && section.fillerWords && renderFluencyContent(section)}
             {section.title === 'Vocabulary Assessment' && section.advancedWords && renderVocabularyContent(section)}

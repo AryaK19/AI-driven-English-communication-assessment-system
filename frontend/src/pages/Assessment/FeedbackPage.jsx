@@ -16,6 +16,12 @@ const FeedbackPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  // Helper function to handle NaN values
+  const formatScore = (score) => {
+    if (score === undefined || isNaN(score)) return 0;
+    return score;
+  };
+
   useEffect(() => {
     const storedData = localStorage.getItem('assessmentFeedback');
     console.log("Stored data:", storedData);
@@ -109,17 +115,18 @@ const FeedbackPage = () => {
       acc.totalGrammarErrors += questionFeedback.grammar.error_count;
       acc.totalPronunciationErrors += questionFeedback.pronunciation.error_count;
       if (questionFeedback.fluency) {
-        acc.totalFluencyScore += questionFeedback.fluency.fluency_score;
+        acc.totalFluencyScore += formatScore(questionFeedback.fluency.fluency_score);
         acc.totalFillerWords += questionFeedback.fluency.filler_word_count;
         acc.fluencyCount += 1;
       }
       if (questionFeedback.vocabulary) {
-        acc.totalVocabularyScore += questionFeedback.vocabulary.vocabulary_score;
         acc.totalAdvancedWords += questionFeedback.vocabulary.total_advanced_words;
-        acc.vocabularyCount += 1;
       }
       if (questionFeedback.correctness) {
-        acc.totalCorrectnessScore += questionFeedback.correctness.score;
+        // Correctness scores are already out of their respective maximums (50/50/100)
+        acc.totalRelevanceScore += formatScore(questionFeedback.correctness.relevance_score);
+        acc.totalQualityScore += formatScore(questionFeedback.correctness.quality_score);
+        acc.totalCorrectnessScore += formatScore(questionFeedback.correctness.score);
         acc.correctnessCount += 1;
       }
       if (questionFeedback.pause_count !== undefined) {
@@ -134,9 +141,9 @@ const FeedbackPage = () => {
     totalFluencyScore: 0,
     totalFillerWords: 0,
     fluencyCount: 0,
-    totalVocabularyScore: 0,
     totalAdvancedWords: 0,
-    vocabularyCount: 0,
+    totalRelevanceScore: 0,
+    totalQualityScore: 0,
     totalCorrectnessScore: 0,
     correctnessCount: 0,
     totalPauses: 0,
@@ -150,26 +157,32 @@ const FeedbackPage = () => {
   const grammarPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalGrammarErrors / totalQuestions * 20)));
   const pronunciationPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalPronunciationErrors / totalQuestions * 20)));
   const fluencyPerformance = overallStats.fluencyCount > 0 
-    ? overallStats.totalFluencyScore / overallStats.fluencyCount 
+    ? formatScore(overallStats.totalFluencyScore / overallStats.fluencyCount)
     : 100;
-  const vocabularyPerformance = overallStats.vocabularyCount > 0
-    ? overallStats.totalVocabularyScore / overallStats.vocabularyCount
-    : 50;
-  const correctnessPerformance = overallStats.correctnessCount > 0
-    ? overallStats.totalCorrectnessScore / overallStats.correctnessCount
-    : 0;
   const pausePerformance = overallStats.pauseCount > 0
     ? Math.max(0, Math.min(100, 100 - (overallStats.totalPauses / overallStats.pauseCount * 10)))
     : 100;
 
-  const overallScore = Math.round(
-    (grammarPerformance * 0.166) +
-    (pronunciationPerformance * 0.166) +
-    (fluencyPerformance * 0.166) +
-    (vocabularyPerformance * 0.166) +
-    (correctnessPerformance * 0.166) +
-    (pausePerformance * 0.166)
+  // Calculate correctness performance (already out of 100)
+  const correctnessPerformance = overallStats.correctnessCount > 0
+    ? formatScore(overallStats.totalCorrectnessScore / overallStats.correctnessCount)
+    : 0;
+
+  // Calculate base score without correctness
+  const baseScore = (
+    (grammarPerformance * 0.3) +       // 30% weight for grammar
+    (pronunciationPerformance * 0.25) + // 25% weight for pronunciation
+    (fluencyPerformance * 0.25) +       // 25% weight for fluency
+    (pausePerformance * 0.2)           // 20% weight for speech pauses
   );
+
+  // Calculate correctness impact (ranges from 0.3 to 1)
+  // If correctness is 0, other scores will be reduced by 70%
+  // If correctness is 100, other scores remain unchanged
+  const correctnessImpact = 0.3 + (correctnessPerformance / 100 * 0.1);
+
+  // Apply correctness impact to get final score
+  const overallScore = Math.round(baseScore * correctnessImpact);
 
   return (
     <motion.div 
@@ -192,7 +205,6 @@ const FeedbackPage = () => {
         grammarPerformance={grammarPerformance}
         pronunciationPerformance={pronunciationPerformance}
         fluencyPerformance={fluencyPerformance}
-        vocabularyPerformance={vocabularyPerformance}
         correctnessPerformance={correctnessPerformance}
         pausePerformance={pausePerformance}
         showDetailedFeedback={showDetailedFeedback}

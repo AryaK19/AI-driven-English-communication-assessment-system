@@ -35,8 +35,8 @@ def analyze_response(question: str, answer: str) -> Tuple[float, str]:
         
         Provide a detailed analysis and give the scores in JSON format with the following JSON and point structure ( STRICTLY MAINTAIN A PERFECT STRUCTURE AS BELOW):
         {{
-            "relevance_score": (0-10 points),
-            "quality_score": (0-25 points),
+            "relevance_score": (0-50 points),
+            "quality_score": (0-50 points),
             "relevance_feedback": "short explanation of relevance score",
             "quality_feedback": "short explanation of quality score"
         }}
@@ -75,11 +75,9 @@ def analyze_response(question: str, answer: str) -> Tuple[float, str]:
         
     
         # If answer is completely irrelevant (relevance_score < 5), zero out the total score
-        if relevance_score < 5:
-            score = 0
-            detailed_feedback['error'] = "Response is completely irrelevant to the question. Score set to 0."
-        else:
-            score = relevance_score + quality_score
+        
+        score = relevance_score + quality_score
+        detailed_feedback['Remark'] = "Scores calculated based on relevance and quality analysis."
 
 
         detailed_feedback['score'] = score
@@ -109,5 +107,6 @@ def check_answer_correctness(question: str, answer: str) -> Dict:
         "relevance_score": detailedFeedback['relevance_score'],
         "quality_score": detailedFeedback['quality_score'],
         "Relevance": detailedFeedback['Relevance'],
-        "Quality": detailedFeedback['Quality']
+        "Quality": detailedFeedback['Quality'],
+        "remark": detailedFeedback['Remark'],
     }
