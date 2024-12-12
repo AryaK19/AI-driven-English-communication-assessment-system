@@ -129,10 +129,12 @@ function AssessmentContent({currentQuestionIndex,questions,isRecording,startReco
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="mt-6 p-4 bg-white rounded-xl shadow-md border border-brand-blue/10"
+          className="mt-3 p-4 bg-white rounded-xl shadow-md border border-brand-blue/10"
         >
           <h3 className="text-sm font-medium text-gray-500 mb-2">Transcribed Speech:</h3>
-          <p className="text-gray-800">{transcribedText}</p>
+          <div className="max-h-[90px] overflow-y-auto pr-2 custom-scrollbar">
+            <p className="text-gray-800">{transcribedText}</p>
+          </div>
         </motion.div>
       )}
 

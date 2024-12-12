@@ -111,7 +111,7 @@ const AssessmentSection = ({ feedback }) => {
               />
             </div>
             <span className="text-xs font-medium text-brand-blue">
-              {section.relevanceScore.toFixed(1)}/50
+              {section.relevanceScore?.toFixed(1)}/50
             </span>
           </div>
           <p className="text-xs text-gray-600 mt-1">{section.relevance}</p>
@@ -127,7 +127,7 @@ const AssessmentSection = ({ feedback }) => {
               />
             </div>
             <span className="text-xs font-medium text-brand-blue">
-              {section.qualityScore.toFixed(1)}/50
+              {section.qualityScore?.toFixed(1)}/50
             </span>
           </div>
           <p className="text-xs text-gray-600 mt-1">{section.quality}</p>
@@ -144,7 +144,7 @@ const AssessmentSection = ({ feedback }) => {
             />
           </div>
           <span className="text-xs font-medium text-brand-blue">
-            {section.score.toFixed(1)}/100
+            {section.score?.toFixed(1)}/100
           </span>
         </div>
       </div>

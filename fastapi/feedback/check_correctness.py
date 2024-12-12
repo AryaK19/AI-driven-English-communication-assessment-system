@@ -40,11 +40,15 @@ def analyze_response(question: str, answer: str) -> Tuple[float, str]:
             "relevance_feedback": "short explanation of relevance score",
             "quality_feedback": "short explanation of quality score"
         }}
+
+        MOSTLY DONT JUDGE THE ANSWERS STRICKLY , TRY TO GIVE HIGHER MARKS.
         
         Base your scoring on:
-        - Relevance: How well the answer addresses the specific question (0-25 points)
-        - Quality: Clarity, depth, and coherence of the explanation (0-25 points)
+        - Relevance: How well the answer addresses the specific question (0-50 points)
+        - Quality: Clarity, depth, and coherence of the explanation (0-50 points)
         """
+
+
 
         response = client.chat.completions.create(
             messages=[
