@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  Calendar, 
-  Clock, 
-  BarChart2, 
-  Award, 
-  ChevronRight, 
+import {
+  Calendar,
+  Clock,
+  BarChart2,
+  Award,
+  ChevronRight,
   Filter,
   Download,
-  Search
+  Search,
 } from "lucide-react";
 import { getAllAssessments } from "../../services/assessmentService";
-import { calculateOverallStats, calculatePerformanceScores, calculateOverallScore } from "../../utils/scoreCalculations";
+import {
+  calculateOverallStats,
+  calculatePerformanceScores,
+  calculateOverallScore,
+} from "../../utils/scoreCalculations";
 
 function OverallReport() {
   const navigate = useNavigate();
@@ -25,67 +29,76 @@ function OverallReport() {
     const fetchAssessments = async () => {
       try {
         const assessments = await getAllAssessments();
-        const processedReports = assessments.map(assessment => {
-          let parsedData;
-          try {
-            parsedData = JSON.parse(assessment.data);
-            parsedData = JSON.parse(parsedData);  
-            console.log(parsedData);
+        const processedReports = assessments
+          .map((assessment) => {
+            let parsedData;
+            try {
+              parsedData = JSON.parse(assessment.data);
+              parsedData = JSON.parse(parsedData);
+              console.log(parsedData);
 
-            const feedbackArray = Array.isArray(parsedData?.feedback) ? parsedData.feedback : [];
-            const totalQuestions = parsedData.questions.length;
+              const feedbackArray = Array.isArray(parsedData?.feedback)
+                ? parsedData.feedback
+                : [];
+              const totalQuestions = parsedData.questions.length;
 
+              // Calculate overall stats and performance scores
+              const overallStats = calculateOverallStats(
+                parsedData.feedback,
+                totalQuestions
+              );
+              const performanceScores = calculatePerformanceScores(
+                overallStats,
+                totalQuestions
+              );
+              // const overallScore = calculateOverallScore(performanceScores) ;
 
+              const {
+                grammarPerformance,
+                pronunciationPerformance,
+                fluencyPerformance,
+                pausePerformance,
+                correctnessPerformance,
+              } = performanceScores;
 
-            // Calculate overall stats and performance scores
-            const overallStats = calculateOverallStats(parsedData.feedback, totalQuestions);
-            const performanceScores = calculatePerformanceScores(overallStats, totalQuestions);
-            // const overallScore = calculateOverallScore(performanceScores) ;
+              const overallScore = Math.round(
+                grammarPerformance * 0.25 +
+                  pronunciationPerformance * 0.05 +
+                  fluencyPerformance * 0.15 +
+                  pausePerformance * 0.15 +
+                  correctnessPerformance * 0.4
+              );
 
-            const {
-              grammarPerformance,
-              pronunciationPerformance,
-              fluencyPerformance,
-              pausePerformance,
-              correctnessPerformance
-            } = performanceScores;
+              console.log(overallScore);
+              const firstFeedback = feedbackArray[0];
+              const duration = firstFeedback?.duration || "N/A";
 
-
-            const overallScore = Math.round(
-              (grammarPerformance * 0.25) +      
-              (pronunciationPerformance * 0.05) +
-              (fluencyPerformance * 0.15) +      
-              (pausePerformance * 0.15) +        
-              (correctnessPerformance * 0.40)     
-            );
-            
-            console.log(overallScore);
-            const firstFeedback = feedbackArray[0];
-            const duration = firstFeedback?.duration || "N/A";
-
-            return {
-              id: assessment._id || assessment.id,
-              date: new Date(assessment.dateAndTime || assessment.createdAt).toISOString(),
-              numberOfQuestions: parsedData.setup?.numberOfQuestions || "N/A",
-              score: overallScore,
-              fluency: Math.round(performanceScores.fluencyPerformance),
-              grammar: Math.round(performanceScores.grammarPerformance),
-              pronunciation: Math.round(performanceScores.pronunciationPerformance),
-              questions: totalQuestions,
-              type: parsedData.setup?.language || "English Assessment",
-              difficulty: parsedData.setup?.difficulty || "N/A",
-              topic: parsedData.setup?.topic || "General"
-            };
-          } catch (parseError) {
-            console.error('Error parsing assessment data:', parseError);
-            return null;
-          }
-        }).filter(Boolean);
+              return {
+                id: assessment._id || assessment.id,
+                date: new Date(assessment.dateAndTime).toISOString(),
+                numberOfQuestions: parsedData.setup?.numberOfQuestions || "N/A",
+                score: overallScore,
+                fluency: Math.round(performanceScores.fluencyPerformance),
+                grammar: Math.round(performanceScores.grammarPerformance),
+                pronunciation: Math.round(
+                  performanceScores.pronunciationPerformance
+                ),
+                questions: totalQuestions,
+                type: parsedData.setup?.language || "English Assessment",
+                difficulty: parsedData.setup?.difficulty || "N/A",
+                topic: parsedData.setup?.topic || "General",
+              };
+            } catch (parseError) {
+              console.error("Error parsing assessment data:", parseError);
+              return null;
+            }
+          })
+          .filter(Boolean);
 
         setReports(processedReports);
       } catch (err) {
-        console.error('Error fetching assessments:', err);
-        setError('Failed to load assessments. Please try again.');
+        console.error("Error fetching assessments:", err);
+        setError("Failed to load assessments. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -98,13 +111,13 @@ function OverallReport() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+      transition: { staggerChildren: 0.1 },
+    },
   };
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 }
+    visible: { y: 0, opacity: 1 },
   };
 
   const handleViewDetails = (reportId) => {
@@ -124,7 +137,7 @@ function OverallReport() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-brand-blue text-white rounded-lg hover:bg-opacity-90"
           >
@@ -135,10 +148,11 @@ function OverallReport() {
     );
   }
 
-  const filteredReports = reports.filter(report => 
-    report.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.difficulty.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredReports = reports.filter(
+    (report) =>
+      report.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.difficulty.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -152,7 +166,6 @@ function OverallReport() {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Assessment Reports
           </h1>
-          
         </motion.div>
 
         <motion.div
@@ -190,15 +203,21 @@ function OverallReport() {
                 <div className="grid grid-cols-3 gap-2 mt-3">
                   <div className="text-center p-2 bg-gray-50 rounded-lg">
                     <div className="text-sm text-gray-500">Fluency</div>
-                    <div className="font-semibold text-brand-blue">{report.fluency}%</div>
+                    <div className="font-semibold text-brand-blue">
+                      {report.fluency}%
+                    </div>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded-lg">
                     <div className="text-sm text-gray-500">Grammar</div>
-                    <div className="font-semibold text-brand-purple">{report.grammar}%</div>
+                    <div className="font-semibold text-brand-purple">
+                      {report.grammar}%
+                    </div>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded-lg">
                     <div className="text-sm text-gray-500">Pronunciation</div>
-                    <div className="font-semibold text-brand-orange">{report.pronunciation}%</div>
+                    <div className="font-semibold text-brand-orange">
+                      {report.pronunciation}%
+                    </div>
                   </div>
                 </div>
               </div>
@@ -206,9 +225,15 @@ function OverallReport() {
               <div className="flex justify-between items-center mt-4 pt-4 border-t">
                 <div className="flex items-center gap-2 text-gray-500">
                   <Clock className="w-4 h-4" />
-                  <span>{report.numberOfQuestions}</span>
+                  <span>
+                    {new Date(report.dateAndTime).toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                  </span>
                 </div>
-                <button 
+                <button
                   onClick={() => handleViewDetails(report.id)}
                   className="flex items-center text-brand-blue hover:text-brand-purple transition-colors"
                 >
