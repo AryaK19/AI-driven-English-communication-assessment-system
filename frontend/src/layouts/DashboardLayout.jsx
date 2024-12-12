@@ -11,8 +11,12 @@ function DashboardLayout() {
 
   const sidebarLinks = [
     { icon: <Home size={20} />, label: "Overview", path: "/dashboard" },
-    { icon: <FileText size={20} />, label: "Reports", path: "/dashboard/reports" },
-    { icon: <Settings size={20} />, label: "Settings", path: "/settings" },
+    {
+      icon: <FileText size={20} />,
+      label: "Reports",
+      path: "/dashboard/reports",
+    },
+    { icon: <Settings size={20} />, label: "Settings", path: "/" },
   ];
 
   const toggleSidebar = () => {
@@ -39,7 +43,7 @@ function DashboardLayout() {
         } bg-white shadow-lg hidden md:block transition-all duration-300 ease-in-out fixed h-[calc(100vh-64px)] top-16`}
       >
         <div className="h-full flex flex-col">
-          <motion.div 
+          <motion.div
             className="p-4 mt-4 flex items-center justify-between"
             whileHover={{ scale: 1.01 }}
           >
@@ -67,7 +71,7 @@ function DashboardLayout() {
               {sidebarLinks.map((link, index) => {
                 const isActive = location.pathname === link.path;
                 return (
-                  <motion.li 
+                  <motion.li
                     key={index}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -110,7 +114,7 @@ function DashboardLayout() {
             </ul>
           </nav>
 
-          <motion.div 
+          <motion.div
             className="p-4 border-t"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -121,7 +125,10 @@ function DashboardLayout() {
               className="flex items-center space-x-3 w-full p-3 rounded-lg transition-colors duration-300 text-gray-600 group"
               onClick={handleLogout}
             >
-              <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
+              <LogOut
+                size={20}
+                className="group-hover:rotate-12 transition-transform"
+              />
               <span className={!isExpanded ? "hidden" : ""}>Logout</span>
             </motion.button>
           </motion.div>

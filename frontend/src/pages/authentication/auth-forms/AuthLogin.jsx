@@ -24,7 +24,7 @@ import { Formik } from "formik";
 // project import
 import { AnimateButton } from "../../../components";
 import { auth } from "../../../../firebase/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 // assets
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
@@ -50,11 +50,7 @@ export default function AuthLogin({ isDemo = false }) {
       const { email, password } = values;
 
       // Use Firebase auth to log in
-      const result = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const result = await signInWithEmailAndPassword(auth, email, password);
       if (result.user) {
         const { displayName, email, uid } = result.user;
 
@@ -64,11 +60,11 @@ export default function AuthLogin({ isDemo = false }) {
           email: email,
           token: uid, // Using Firebase UID as the token here for demonstration
         };
-      }
 
-      // Store the user data in localStorage
-      localStorage.setItem("currUser", JSON.stringify(userPayload));
-      console.log("Login successful", userPayload);
+        // Store the user data in localStorage
+        localStorage.setItem("currUser", JSON.stringify(userPayload));
+        console.log("Login successful", userPayload);
+      }
 
       // Redirect to dashboard or any protected page after login
       navigate("/dashboard");
