@@ -87,7 +87,7 @@ export default function AuthRegister() {
       console.error("Error during registration:", error);
       // Handle errors and set them in the form
       setErrors({
-        submit: error.response?.data?.message || "Registration failed",
+        submit: error.response?.data?.message || "User already exsists",
       });
     } finally {
       setSubmitting(false);
