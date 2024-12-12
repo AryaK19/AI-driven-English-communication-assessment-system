@@ -51,10 +51,10 @@ async def process_audio_file(file_path: str, language: str = "English") -> dict:
             transcription = client.audio.transcriptions.create(
                 file=(os.path.basename(file_path), file.read()),
                 model="whisper-large-v3-turbo",
-                prompt=f"Transcribe in {language}. Include hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh'",
+                # prompt=f"Include hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh'",
                 response_format="json",
                 language=language_code,
-                temperature=0.0
+                temperature=0.1
             )
 
         return {
