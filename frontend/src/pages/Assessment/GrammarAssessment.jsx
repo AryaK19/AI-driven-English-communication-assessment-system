@@ -28,6 +28,7 @@ function GrammarAssessment() {
   const videoRef = useRef(null);
 
   const MAX_RECORDING_TIME = 120; // 2 minutes
+  const MIN_WORD_COUNT = 30; // Minimum word count required
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -188,7 +189,17 @@ function GrammarAssessment() {
     }
   };
 
+  const getWordCount = (text) => {
+    return text.trim().split(/\s+/).length;
+  };
+
   const nextQuestion = () => {
+    const wordCount = getWordCount(transcribedText);
+    if (wordCount < MIN_WORD_COUNT) {
+      setError(`Your answer is too short. Please provide at least ${MIN_WORD_COUNT} words. Current word count: ${wordCount}`);
+      return;
+    }
+
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setAssessmentStage("preview");
@@ -210,6 +221,12 @@ function GrammarAssessment() {
   };
 
   const viewFeedback = () => {
+    const wordCount = getWordCount(transcribedText);
+    if (wordCount < MIN_WORD_COUNT) {
+      setError(`Your answer is too short. Please provide at least ${MIN_WORD_COUNT} words. Current word count: ${wordCount}`);
+      return;
+    }
+
     localStorage.setItem('assessmentFeedback', JSON.stringify({
       questions,
       feedback: feedbackData,

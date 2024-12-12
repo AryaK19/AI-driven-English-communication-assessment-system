@@ -183,19 +183,22 @@ class FeedbackProcessor:
             }
 
         
-    async def analyze_pauses(self, text: str, tempFileName: str) -> int:
+    async def analyze_pauses(self, text: str, tempFileName: str) -> Dict:
         """
         Analyze text for pauses using the pause count from the audio file.
+        Returns a dictionary containing pause analysis.
         """
         try:
-            # Get the pause count from the audio file
-            pause_count = get_pause_count(tempFileName)
-            return pause_count
+            # Get the pause analysis from the audio file
+            pause_analysis = get_pause_count(tempFileName)
+            return pause_analysis
         except Exception as e:
             print(f"Error in analyze_pauses: {str(e)}")
-            return 0
-        
-
+            return {
+                "total_pauses": 0,
+                "pause_details": [],
+                "total_pause_duration": 0
+            }
 
     def _parse_grammar_response(self, response: str) -> Dict:
         """
@@ -232,15 +235,8 @@ class FeedbackProcessor:
                 "error_count": 0,
                 "errors": []
             }
-        
-
-
-
-
 
     async def analyze_text(self, text: str, question: Optional[str] = None, tempFileName: str = '') -> Dict:
-
-
         """
         Analyze text for grammar, pronunciation, vocabulary, fluency and answer correctness.
         """
@@ -249,23 +245,17 @@ class FeedbackProcessor:
         vocabulary_analysis = analyze_vocabulary(text)
         fluency_analysis = self.analyze_fluency(text)
 
-        pause_analysis = await self.analyze_pauses(text,tempFileName)
+        pause_analysis = await self.analyze_pauses(text, tempFileName)
         correctness_analysis = check_answer_correctness(question, text)
-
-        # Add answer correctness analysis if question is provided
 
         feedback = {
             "grammar": grammar_analysis,
             "pronunciation": pronunciation_analysis,
             "vocabulary": vocabulary_analysis,
             "fluency": fluency_analysis,
-            "pause_count": pause_analysis["total_pauses"],
+            "pauses": pause_analysis,  # Now returning the complete pause analysis
             "correctness": correctness_analysis,
-
             "text": text
         }
-
-
-        
 
         return feedback
