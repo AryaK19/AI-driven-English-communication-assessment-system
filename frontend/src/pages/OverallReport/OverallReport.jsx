@@ -12,6 +12,7 @@ import {
   Search
 } from "lucide-react";
 import { getAllAssessments } from "../../services/assessmentService";
+import { calculateOverallStats, calculatePerformanceScores, calculateOverallScore } from "../../utils/scoreCalculations";
 
 function OverallReport() {
   const navigate = useNavigate();
@@ -27,65 +28,50 @@ function OverallReport() {
         const processedReports = assessments.map(assessment => {
           let parsedData;
           try {
-            parsedData = typeof assessment.data === 'string' 
-              ? JSON.parse(assessment.data) 
-              : assessment.data;
+            parsedData = JSON.parse(assessment.data);
+            parsedData = JSON.parse(parsedData);  
+            console.log(parsedData);
 
             const feedbackArray = Array.isArray(parsedData?.feedback) ? parsedData.feedback : [];
-            
-            const scores = feedbackArray.reduce((acc, feedback) => {
-              if (feedback) {
-                const grammarScore = feedback.grammar?.error_count !== undefined
-                  ? Math.max(0, 100 - (feedback.grammar.error_count * 10))
-                  : 0;
-                acc.grammar += grammarScore;
+            const totalQuestions = parsedData.questions.length;
 
-                const pronunciationScore = feedback.pronunciation?.error_count !== undefined
-                  ? Math.max(0, 100 - (feedback.pronunciation.error_count * 5))
-                  : 0;
-                acc.pronunciation += pronunciationScore;
 
-                acc.fluency += feedback.fluency?.fluency_score || 0;
-                acc.correctness += feedback.correctness?.score || 0;
-                acc.count++;
-              }
-              return acc;
-            }, { grammar: 0, pronunciation: 0, fluency: 0, correctness: 0, count: 0 });
 
-            const count = scores.count || 1;
-            const averageScores = {
-              grammar: Math.round(scores.grammar / count),
-              pronunciation: Math.round(scores.pronunciation / count),
-              fluency: Math.round(scores.fluency / count),
-              correctness: Math.round(scores.correctness / count)
-            };
+            // Calculate overall stats and performance scores
+            const overallStats = calculateOverallStats(parsedData.feedback, totalQuestions);
+            const performanceScores = calculatePerformanceScores(overallStats, totalQuestions);
+            // const overallScore = calculateOverallScore(performanceScores) ;
 
-            const weights = {
-              grammar: 0.25,
-              pronunciation: 0.25,
-              fluency: 0.25,
-              correctness: 0.25
-            };
+            const {
+              grammarPerformance,
+              pronunciationPerformance,
+              fluencyPerformance,
+              pausePerformance,
+              correctnessPerformance
+            } = performanceScores;
+
 
             const overallScore = Math.round(
-              (averageScores.grammar * weights.grammar) +
-              (averageScores.pronunciation * weights.pronunciation) +
-              (averageScores.fluency * weights.fluency) +
-              (averageScores.correctness * weights.correctness)
+              (grammarPerformance * 0.25) +      
+              (pronunciationPerformance * 0.05) +
+              (fluencyPerformance * 0.15) +      
+              (pausePerformance * 0.15) +        
+              (correctnessPerformance * 0.40)     
             );
-
+            
+            console.log(overallScore);
             const firstFeedback = feedbackArray[0];
             const duration = firstFeedback?.duration || "N/A";
 
             return {
               id: assessment._id || assessment.id,
               date: new Date(assessment.dateAndTime || assessment.createdAt).toISOString(),
-              duration: duration,
+              numberOfQuestions: parsedData.setup?.numberOfQuestions || "N/A",
               score: overallScore,
-              fluency: averageScores.fluency,
-              grammar: averageScores.grammar,
-              pronunciation: averageScores.pronunciation,
-              questions: parsedData.questions?.length || 0,
+              fluency: Math.round(performanceScores.fluencyPerformance),
+              grammar: Math.round(performanceScores.grammarPerformance),
+              pronunciation: Math.round(performanceScores.pronunciationPerformance),
+              questions: totalQuestions,
               type: parsedData.setup?.language || "English Assessment",
               difficulty: parsedData.setup?.difficulty || "N/A",
               topic: parsedData.setup?.topic || "General"
@@ -122,7 +108,6 @@ function OverallReport() {
   };
 
   const handleViewDetails = (reportId) => {
-    // Updated to use the new URL pattern
     navigate(`/dashboard/reports/${reportId}/feedback`);
   };
 
@@ -168,11 +153,6 @@ function OverallReport() {
             Assessment Reports
           </h1>
           
-          <div className="flex gap-4 mb-6">
-            <div className="flex-1 relative">
-
-            </div>
-          </div>
         </motion.div>
 
         <motion.div
@@ -226,7 +206,7 @@ function OverallReport() {
               <div className="flex justify-between items-center mt-4 pt-4 border-t">
                 <div className="flex items-center gap-2 text-gray-500">
                   <Clock className="w-4 h-4" />
-                  <span>{report.duration}</span>
+                  <span>{report.numberOfQuestions}</span>
                 </div>
                 <button 
                   onClick={() => handleViewDetails(report.id)}

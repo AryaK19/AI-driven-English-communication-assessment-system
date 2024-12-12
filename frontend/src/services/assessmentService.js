@@ -20,6 +20,10 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
 
   const dataToStore = JSON.stringify(assessmentData);
 
+
+
+  
+
   const response = await axios.post(
     `${API_BASE_URL}/assessments/save`,
     {
