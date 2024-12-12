@@ -4,6 +4,43 @@ import Assessment from "../models/Assessment.js";
 
 const router = express.Router();
 
+router.get("/all", async (req, res) => {
+  try {
+    // Get current user from request headers
+    
+    const currUserEmail = req.headers["x-user-email"];
+    if (!currUserEmail) {
+      return res
+        .status(400)
+        .json({ error: "User email is required in headers." });
+    }
+
+    // Find the user by email and populate their assessments
+    const user = await User.findOne({ email: currUserEmail }).populate(
+      "assessments"
+    );
+
+
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Map over assessments to include the _id (id) and other fields
+    const assessmentsWithIds = user.assessments.map((assessment) => ({
+      id: assessment._id, // MongoDB _id will be mapped to id
+      data: assessment.data,
+      dateAndTime: assessment.dateAndTime,
+      createdAt: assessment.createdAt,
+      updatedAt: assessment.updatedAt,
+    }));
+
+    // Return the assessments with the ids
+    return res.status(200).json({ assessments: assessmentsWithIds });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
 // Route to save an assessment
 router.post("/save", async (req, res) => {
   try {
@@ -45,7 +82,7 @@ router.post("/save", async (req, res) => {
 });
 
 // Route to delete an assessment
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const { id: assessmentId } = req.params;
 
@@ -88,7 +125,7 @@ router.delete("/delete/:id", async (req, res) => {
 });
 
 // Route to get data for a specific assessment
-router.get("/get/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const { id: assessmentId } = req.params;
 
@@ -134,38 +171,5 @@ router.get("/get/:id", async (req, res) => {
   }
 });
 
-router.get("/get/all", async (req, res) => {
-  try {
-    // Get current user from request headers
-    const currUserEmail = req.headers["x-user-email"];
-    if (!currUserEmail) {
-      return res
-        .status(400)
-        .json({ error: "User email is required in headers." });
-    }
-
-    // Find the user by email and populate their assessments
-    const user = await User.findOne({ email: currUserEmail }).populate(
-      "assessments"
-    );
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    // Map over assessments to include the _id (id) and other fields
-    const assessmentsWithIds = user.assessments.map((assessment) => ({
-      id: assessment._id, // MongoDB _id will be mapped to id
-      data: assessment.data,
-      dateAndTime: assessment.dateAndTime,
-      createdAt: assessment.createdAt,
-      updatedAt: assessment.updatedAt,
-    }));
-
-    // Return the assessments with the ids
-    return res.status(200).json({ assessments: assessmentsWithIds });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-});
 
 export default router;

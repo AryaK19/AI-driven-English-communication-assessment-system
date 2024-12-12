@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getIdealAnswer } from '../../services/api';
 import OverallPerformance from '../../components/Feedback/OverallPerformance';
 import DetailedFeedback from '../../components/Feedback/DetailedFeedback/DetailedFeedback';
-import { saveAssessment } from '../../services/assessmentService';
+import { saveAssessment, deleteAssessment } from '../../services/assessmentService';
 
 const FeedbackPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [assessmentData, setAssessmentData] = useState(null);
   const [showDetailedFeedback, setShowDetailedFeedback] = useState(false);
   const [idealAnswers, setIdealAnswers] = useState({});
   const [loadingIdealAnswer, setLoadingIdealAnswer] = useState({});
   const [expandedQuestion, setExpandedQuestion] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Check if we're coming from OverallReport using the new URL pattern
+  const isFromOverallReport = location.pathname.includes('/dashboard/reports/');
 
   // Helper function to handle NaN values
   const formatScore = (score) => {
@@ -89,6 +94,22 @@ const FeedbackPage = () => {
     }
   };
 
+  const handleDeleteAssessment = async () => {
+    try {
+      setIsDeleting(true);
+      // Extract assessment ID from the new URL pattern
+      const assessmentId = location.pathname.split('/')[3]; // Get ID from /dashboard/reports/:id/feedback
+      await deleteAssessment(assessmentId);
+      alert("Assessment deleted successfully!");
+      navigate('/dashboard/reports'); 
+    } catch (error) {
+      console.error("Error deleting assessment:", error);
+      alert(`Failed to delete assessment: ${error.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!assessmentData) {
     return (
       <motion.div 
@@ -123,7 +144,6 @@ const FeedbackPage = () => {
         acc.totalAdvancedWords += questionFeedback.vocabulary.total_advanced_words;
       }
       if (questionFeedback.correctness) {
-        // Correctness scores are already out of their respective maximums (50/50/100)
         acc.totalRelevanceScore += formatScore(questionFeedback.correctness.relevance_score);
         acc.totalQualityScore += formatScore(questionFeedback.correctness.quality_score);
         acc.totalCorrectnessScore += formatScore(questionFeedback.correctness.score);
@@ -134,7 +154,6 @@ const FeedbackPage = () => {
         acc.totalPauses += questionFeedback.pause_count;
         acc.pauseCount += 1;
       }
-
     }
     return acc;
   }, { 
@@ -165,25 +184,18 @@ const FeedbackPage = () => {
     ? Math.max(0, Math.min(100, 100 - (overallStats.totalPauses / overallStats.pauseCount * 10)))
     : 100;
 
-  // Calculate correctness performance (already out of 100)
   const correctnessPerformance = overallStats.correctnessCount > 0
     ? formatScore(overallStats.totalCorrectnessScore / overallStats.correctnessCount)
     : 0;
 
-  // Calculate base score without correctness
   const baseScore = (
-    (grammarPerformance * 0.3) +       // 30% weight for grammar
-    (pronunciationPerformance * 0.25) + // 25% weight for pronunciation
-    (fluencyPerformance * 0.25) +       // 25% weight for fluency
-    (pausePerformance * 0.2)           // 20% weight for speech pauses
+    (grammarPerformance * 0.3) +
+    (pronunciationPerformance * 0.25) +
+    (fluencyPerformance * 0.25) +
+    (pausePerformance * 0.2)
   );
 
-  // Calculate correctness impact (ranges from 0.3 to 1)
-  // If correctness is 0, other scores will be reduced by 70%
-  // If correctness is 100, other scores remain unchanged
   const correctnessImpact = 0.3 + (correctnessPerformance / 100 * 0.1);
-
-  // Apply correctness impact to get final score
   const overallScore = Math.round(baseScore * correctnessImpact);
 
   return (
@@ -200,7 +212,6 @@ const FeedbackPage = () => {
         Assessment Feedback
       </motion.h1>
       
-      {/* Overall Performance Section */}
       <OverallPerformance
         overallScore={overallScore}
         overallStats={overallStats}
@@ -213,7 +224,6 @@ const FeedbackPage = () => {
         setShowDetailedFeedback={setShowDetailedFeedback}
       />
 
-      {/* Detailed Feedback Section */}
       <DetailedFeedback 
         showDetailedFeedback={showDetailedFeedback}
         assessmentData={assessmentData}
@@ -224,40 +234,65 @@ const FeedbackPage = () => {
         idealAnswers={idealAnswers}
       />
 
-      {/* Save Assessment Button */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
         className="mt-8 flex flex-col items-center gap-4"
       >
-        <motion.button 
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleSaveAssessment}
-          disabled={isSaving}
-          className={`px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 text-sm flex items-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          {isSaving ? (
-            <>
-              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Saving Assessment...
-            </>
-          ) : (
-            'Save Assessment'
-          )}
-        </motion.button>
+        {isFromOverallReport ? (
+          // Show Delete button only when from OverallReport
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleDeleteAssessment}
+            disabled={isDeleting}
+            className={`px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 text-sm flex items-center gap-2 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isDeleting ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Deleting Assessment...
+              </>
+            ) : (
+              'Delete Assessment'
+            )}
+          </motion.button>
+        ) : (
+          // Show Save button only when not from OverallReport
+          <>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSaveAssessment}
+              disabled={isSaving}
+              className={`px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 text-sm flex items-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isSaving ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Saving Assessment...
+                </>
+              ) : (
+                'Save Assessment'
+              )}
+            </motion.button>
 
-        {uploadProgress > 0 && uploadProgress < 100 && (
-          <div className="w-full max-w-md bg-gray-200 rounded-full h-2.5">
-            <div 
-              className="bg-green-600 h-2.5 rounded-full transition-all duration-300"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
-          </div>
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="w-full max-w-md bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-green-600 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            )}
+          </>
         )}
 
         <motion.button 

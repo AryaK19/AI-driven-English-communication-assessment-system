@@ -13,35 +13,12 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
   }
 
   const uploadedUrls = [];
-
-  //   for (let i = 0; i < videoUrls.length; i++) {
-  //     const s3Data = await uploadVideo(videoUrls[i], i);
-  //     uploadedUrls.push(s3Data.url);
-  //     onProgressUpdate(((i + 1) / videoUrls.length) * 100);
-  //   }
-
-
-
-
-
-
-  const assessmentToSave = {
-    ...assessmentData,
-    videoUrls: uploadedUrls,
-    savedAt: new Date().toISOString(),
-  };
-
-  
-  // Modify the video URL's in assessment with those pushed on AWS
   const currUser = JSON.parse(localStorage.getItem("currUser"));
   if (!currUser?.email) {
     throw new Error("User email not found in localStorage");
   }
 
-  
   const dataToStore = JSON.stringify(assessmentData);
-  // console.log("Assessment data ready to save:", dataToStore);
-  // console.log("Type of dataToStore:", typeof dataToStore);
 
   const response = await axios.post(
     `${API_BASE_URL}/assessments/save`,
@@ -55,18 +32,21 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
       },
     }
   );
-  console.log(response);
-  return assessmentToSave;
+
+  return {
+    ...assessmentData,
+    videoUrls: uploadedUrls,
+    savedAt: new Date().toISOString(),
+  };
 };
 
-// Function to delete an assessment by ID
 export const deleteAssessment = async (assessmentId) => {
   try {
     const response = await axios.delete(
-      `${API_BASE_URL}/assessments/delete/${assessmentId}`,
+      `${API_BASE_URL}/assessments/${assessmentId}`,
       {
         headers: {
-          "x-user-email": localStorage.getItem("currUser")?.email,
+          "x-user-email": JSON.parse(localStorage.getItem("currUser"))?.email,
         },
       }
     );
@@ -77,48 +57,58 @@ export const deleteAssessment = async (assessmentId) => {
   }
 };
 
-// Function to get a specific assessment by ID
 export const getAssessment = async (assessmentId) => {
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/assessments/get/${assessmentId}`,
+      `${API_BASE_URL}/assessments/${assessmentId}`,
       {
         headers: {
-          "x-user-email": localStorage.getItem("currUser")?.email,
+          "x-user-email": JSON.parse(localStorage.getItem("currUser"))?.email,
         },
       }
     );
-    const { id, data, dateAndTime, createdAt, updatedAt } =
-      response.data.assessment;
+
+    const { id, data, dateAndTime, createdAt, updatedAt } = response.data.assessment;
+
+    // Parse the data if it's a string
+    let parsedData;
+    try {
+      parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+    } catch (parseError) {
+      console.error('Error parsing assessment data:', parseError);
+      throw new Error('Failed to parse assessment data');
+    }
 
     return {
       id,
-      data,
+      data: parsedData,
       dateAndTime,
       createdAt,
       updatedAt,
     };
   } catch (error) {
+    console.error('Error fetching assessment:', error);
     throw new Error(error.response?.data?.error || error.message);
   }
 };
 
-// Function to get all assessments
 export const getAllAssessments = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/assessments/get/all`, {
+    const response = await axios.get(`${API_BASE_URL}/assessments/all`, {
       headers: {
-        "x-user-email": localStorage.getItem("currUser")?.email,
+        "x-user-email": JSON.parse(localStorage.getItem("currUser"))?.email,
       },
     });
+
     return response.data.assessments.map((assessment) => ({
-      id: assessment.id, // Using id from the server response
+      id: assessment._id || assessment.id,
       data: assessment.data,
       dateAndTime: assessment.dateAndTime,
       createdAt: assessment.createdAt,
       updatedAt: assessment.updatedAt,
     }));
   } catch (error) {
+    console.error('Error fetching assessments:', error);
     throw new Error(error.response?.data?.error || error.message);
   }
 };
