@@ -15,6 +15,7 @@ import {
 function Dashboard() {
   const navigate = useNavigate();
 
+  // Assessment types configuration with metadata and navigation paths
   const assessmentTypes = [
     {
       title: "Assessment",
@@ -26,6 +27,7 @@ function Dashboard() {
       path: "assessment/setup",
       stats: { completed: 12, avgScore: "85%" },
     },
+    // Additional assessment types commented out for future implementation
     // {
     //   title: "Video Interview",
     //   icon: <VideoIcon className="w-8 h-8" />,
@@ -34,34 +36,20 @@ function Dashboard() {
     //   count: "5 Scenarios",
     //   stats: { completed: 8, avgScore: "78%" },
     // },
-    // {
-    //   title: "Reading Comprehension",
-    //   icon: <BookOpen className="w-8 h-8" />,
-    //   description: "Test your reading and understanding abilities",
-    //   color: "bg-brand-orange",
-    //   count: "4 Tests Available",
-    //   stats: { completed: 15, avgScore: "92%" },
-    // },
-    // {
-    //   title: "Conversation Practice",
-    //   icon: <MessageSquare className="w-8 h-8" />,
-    //   description: "Practice daily conversations and improve fluency",
-    //   color: "bg-brand-yellow",
-    //   count: "8 Topics",
-    //   stats: { completed: 20, avgScore: "88%" },
-    // },
   ];
 
+  // Framer Motion animation variants for staggered container animation
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.1, // Delay between each child animation
       },
     },
   };
 
+  // Animation variants for individual assessment cards
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
@@ -73,7 +61,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
+        {/* Animated Header Section with User Stats */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,6 +78,8 @@ function Dashboard() {
             <p className="text-gray-600 text-lg">
               Continue your learning journey today
             </p>
+
+            {/* User Progress Metrics */}
             <div className="flex gap-6 mt-6">
               <div className="flex items-center gap-2 text-brand-blue">
                 <Trophy className="w-5 h-5" />
@@ -107,7 +97,7 @@ function Dashboard() {
           </div>
         </motion.div>
 
-        {/* Assessment Grid */}
+        {/* Assessment Grid with Staggered Animation */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -122,6 +112,7 @@ function Dashboard() {
               className="cursor-pointer bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
               onClick={() => navigate(assessment.path)}
             >
+              {/* Assessment Card Header */}
               <div className="flex items-start justify-between">
                 <div
                   className={`${assessment.color} p-4 rounded-2xl text-white transform transition-transform hover:scale-110`}
@@ -132,6 +123,8 @@ function Dashboard() {
                   {assessment.count}
                 </span>
               </div>
+
+              {/* Assessment Details */}
               <h3 className="text-2xl font-semibold mt-4 text-gray-900">
                 {assessment.title}
               </h3>
@@ -139,7 +132,7 @@ function Dashboard() {
                 {assessment.description}
               </p>
 
-              {/* Stats Section */}
+              {/* Stats Section - Commented out for future implementation */}
               {/* <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
                 <div className="flex items-center gap-1">
                   <Trophy className="w-4 h-4" />
@@ -151,6 +144,7 @@ function Dashboard() {
                 </div>
               </div> */}
 
+              {/* Animated Call-to-Action Button */}
               <motion.button
                 whileHover={{ x: 5 }}
                 className="mt-4 text-brand-blue flex items-center text-sm font-medium hover:text-brand-purple transition-colors"

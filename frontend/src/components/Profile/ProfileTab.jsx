@@ -18,16 +18,20 @@ import WalletOutlined from "@ant-design/icons/WalletOutlined";
 // project import
 import { logoutUser } from "../../services/logoutUser";
 
-// ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
-
 export default function ProfileTab() {
+  // Track selected menu item for visual feedback
   const [selectedIndex, setSelectedIndex] = useState(0);
   const navigate = useNavigate();
 
-  const handleListItemClick = (index) => {
+  // Handle menu item selection and navigation
+  const handleListItemClick = (event, index, route) => {
     setSelectedIndex(index);
+    if (route) {
+      navigate(route);
+    }
   };
 
+  // Firebase logout with error handling and navigation
   const handleLogout = async () => {
     try {
       await logoutUser();
@@ -41,8 +45,10 @@ export default function ProfileTab() {
   return (
     <List
       component="nav"
+      // Customize Material-UI list icons spacing
       sx={{ p: 0, "& .MuiListItemIcon-root": { minWidth: 32 } }}
     >
+      {/* Edit Profile Option */}
       <ListItemButton
         selected={selectedIndex === 0}
         onClick={(event) =>
@@ -54,6 +60,8 @@ export default function ProfileTab() {
         </ListItemIcon>
         <ListItemText primary="Edit Profile" />
       </ListItemButton>
+
+      {/* View Profile Option */}
       <ListItemButton
         selected={selectedIndex === 1}
         onClick={(event) =>
@@ -66,6 +74,7 @@ export default function ProfileTab() {
         <ListItemText primary="View Profile" />
       </ListItemButton>
 
+      {/* Social Profile Option */}
       <ListItemButton
         selected={selectedIndex === 3}
         onClick={(event) =>
@@ -77,6 +86,8 @@ export default function ProfileTab() {
         </ListItemIcon>
         <ListItemText primary="Social Profile" />
       </ListItemButton>
+
+      {/* Billing Option */}
       <ListItemButton
         selected={selectedIndex === 4}
         onClick={(event) =>
@@ -88,6 +99,8 @@ export default function ProfileTab() {
         </ListItemIcon>
         <ListItemText primary="Billing" />
       </ListItemButton>
+
+      {/* Logout Option - Separate handler for Firebase logout */}
       <ListItemButton selected={selectedIndex === 2} onClick={handleLogout}>
         <ListItemIcon>
           <LogoutOutlined />

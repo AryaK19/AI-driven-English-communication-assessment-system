@@ -31,50 +31,51 @@ import EyeOutlined from "@ant-design/icons/EyeOutlined";
 import EyeInvisibleOutlined from "@ant-design/icons/EyeInvisibleOutlined";
 import FirebaseSocial from "./FirebaseSocial";
 
-// ============================|| JWT - LOGIN ||============================ //
-
 export default function AuthLogin({ isDemo = false }) {
+  // State for "Remember Me" checkbox and password visibility
   const [checked, setChecked] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
-  const navigate = useNavigate(); // For navigation after login
+  const navigate = useNavigate();
+
+  // Toggle password visibility with accessibility support
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
   const handleMouseDownPassword = (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent focus loss on mouse down
   };
 
+  // Handle form submission with Firebase authentication
   const handleFormSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
       const { email, password } = values;
 
-      // Use Firebase auth to log in
+      // Authenticate with Firebase and get user data
       const result = await signInWithEmailAndPassword(auth, email, password);
       if (result.user) {
         const { displayName, email, uid } = result.user;
 
-        // Create a payload for the user
+        // Create user session data
         const userPayload = {
           username: displayName,
           email: email,
-          token: uid, // Using Firebase UID as the token here for demonstration
+          token: uid, // Using Firebase UID as session token
         };
 
-        // Store the user data in localStorage
+        // Store user session in localStorage for persistence
         localStorage.setItem("currUser", JSON.stringify(userPayload));
         console.log("Login successful", userPayload);
       }
 
-      // Redirect to dashboard or any protected page after login
       navigate("/dashboard");
     } catch (error) {
-      // Handle errors returned by Firebase
+      // Handle Firebase authentication errors
       const errorMessage = error.message || "Login failed";
       console.error("Login error:", errorMessage);
       setErrors({ submit: errorMessage });
     } finally {
-      setSubmitting(false); // Stop the loading state
+      setSubmitting(false);
     }
   };
 
@@ -86,6 +87,7 @@ export default function AuthLogin({ isDemo = false }) {
           password: "",
           submit: null,
         }}
+        // Form validation schema using Yup
         validationSchema={Yup.object().shape({
           email: Yup.string()
             .email("Must be a valid email")
@@ -106,6 +108,7 @@ export default function AuthLogin({ isDemo = false }) {
         }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
+              {/* Email Input Field */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="email-login">Email Address</InputLabel>
@@ -130,6 +133,8 @@ export default function AuthLogin({ isDemo = false }) {
                   </FormHelperText>
                 )}
               </Grid>
+
+              {/* Password Input Field with Toggle Visibility */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="password-login">Password</InputLabel>
@@ -172,6 +177,7 @@ export default function AuthLogin({ isDemo = false }) {
                 )}
               </Grid>
 
+              {/* Remember Me and Forgot Password Row */}
               <Grid item xs={12} sx={{ mt: -1 }}>
                 <Stack
                   direction="row"
@@ -192,7 +198,7 @@ export default function AuthLogin({ isDemo = false }) {
                     label={
                       <Typography
                         variant="body2"
-                        sx={{ color: "text.secondary" }} // Make it less bright
+                        sx={{ color: "text.secondary" }}
                       >
                         Keep me signed in
                       </Typography>
@@ -201,17 +207,21 @@ export default function AuthLogin({ isDemo = false }) {
                   <Link
                     variant="body2"
                     component={RouterLink}
-                    color="primary" // Make it blue
+                    color="primary"
                   >
                     Forgot Password?
                   </Link>
                 </Stack>
               </Grid>
+
+              {/* Error Message Display */}
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText error>{errors.submit}</FormHelperText>
                 </Grid>
               )}
+
+              {/* Login Button */}
               <Grid item xs={12}>
                 <AnimateButton>
                   <Button
@@ -227,6 +237,8 @@ export default function AuthLogin({ isDemo = false }) {
                   </Button>
                 </AnimateButton>
               </Grid>
+
+              {/* Social Login Section */}
               <Grid item xs={12}>
                 <Divider>
                   <Typography variant="caption"> Login with</Typography>

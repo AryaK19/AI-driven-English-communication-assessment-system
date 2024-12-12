@@ -17,6 +17,7 @@ import {
 const FeedbackPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  // Core state management for assessment data and UI controls
   const [assessmentData, setAssessmentData] = useState(null);
   const [showDetailedFeedback, setShowDetailedFeedback] = useState(false);
   const [idealAnswers, setIdealAnswers] = useState({});
@@ -27,8 +28,10 @@ const FeedbackPage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   
+  // Ref for PDF generation to capture the entire feedback content
   const contentRef = useRef(null);
 
+  // Flag to determine if we're viewing from overall report or fresh assessment
   const isFromOverallReport = location.pathname.includes('/dashboard/reports/');
 
   const formatScore = (score) => {
@@ -36,6 +39,7 @@ const FeedbackPage = () => {
     return score;
   };
 
+  // Load assessment data from localStorage on component mount
   useEffect(() => {
     const storedData = localStorage.getItem('assessmentFeedback');
     console.log("Stored data:", storedData);
@@ -44,11 +48,13 @@ const FeedbackPage = () => {
     }
   }, []);
 
+  // Fetches and processes ideal answer with error handling and state management
   const handleGetIdealAnswer = async (question, answer, index) => {
     try {
       setLoadingIdealAnswer(prev => ({ ...prev, [index]: true }));
       const result = await getIdealAnswer(question, answer);
       
+      // Parse response data, handling both string and object formats
       let parsedData;
       try {
         parsedData = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
@@ -81,6 +87,7 @@ const FeedbackPage = () => {
     }
   };
 
+  // Handles assessment saving with progress tracking for video uploads
   const handleSaveAssessment = async () => {
     try {
       setIsSaving(true);
@@ -117,6 +124,7 @@ const FeedbackPage = () => {
     }
   };
 
+  // Complex PDF generation process that handles dynamic content and styling
   const handleDownloadPdf = async () => {
     if (!assessmentData?.questions) {
       alert('Assessment data is not fully loaded. Please try again.');
@@ -126,13 +134,16 @@ const FeedbackPage = () => {
     try {
       setIsGeneratingPdf(true);
 
+      // Store current UI state to restore after PDF generation
       const previousDetailedFeedback = showDetailedFeedback;
       const previousExpandedQuestions = [...expandedQuestions];
 
+      // Expand all content for PDF capture
       setShowDetailedFeedback(true);
       const allQuestionIndexes = assessmentData.questions.map((_, index) => index);
       setExpandedQuestions(allQuestionIndexes);
 
+      // Fetch any missing ideal answers before PDF generation
       const questionPromises = assessmentData.questions.map((question, index) => {
         const feedback = assessmentData.feedback[index];
         if (!idealAnswers[index] && feedback && feedback.text) {
@@ -142,13 +153,14 @@ const FeedbackPage = () => {
       });
 
       await Promise.all(questionPromises.filter(Boolean));
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Allow time for content to render
 
       const content = contentRef.current;
       if (!content) {
         throw new Error('Content element not found');
       }
 
+      // Configure html2canvas for optimal PDF quality
       const canvas = await html2canvas(content, {
         scale: 2,
         useCORS: true,
@@ -170,6 +182,7 @@ const FeedbackPage = () => {
         }
       });
 
+      // Generate PDF from canvas
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -180,6 +193,7 @@ const FeedbackPage = () => {
       pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
       pdf.save('assessment-feedback.pdf');
 
+      // Restore previous UI state
       setShowDetailedFeedback(previousDetailedFeedback);
       setExpandedQuestions(previousExpandedQuestions);
     } catch (error) {
@@ -210,6 +224,7 @@ const FeedbackPage = () => {
     );
   }
 
+  // Calculate performance metrics using utility functions
   const totalQuestions = assessmentData.questions.length;
   const overallStats = calculateOverallStats(assessmentData.feedback, totalQuestions);
   const performanceScores = calculatePerformanceScores(overallStats, totalQuestions);

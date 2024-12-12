@@ -7,8 +7,10 @@ import { logoutUser } from "../services/logoutUser";
 function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  // Controls sidebar expanded/collapsed state
   const [isExpanded, setIsExpanded] = useState(true);
 
+  // Navigation configuration with icons and routes
   const sidebarLinks = [
     { icon: <Home size={20} />, label: "Overview", path: "/dashboard" },
     {
@@ -19,10 +21,12 @@ function DashboardLayout() {
     { icon: <Settings size={20} />, label: "Settings", path: "/" },
   ];
 
+  // Toggle sidebar expansion state
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
   };
 
+  // Handle user logout with Firebase auth
   const handleLogout = async () => {
     try {
       await logoutUser();
@@ -35,6 +39,7 @@ function DashboardLayout() {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* Animated Sidebar with Responsive Behavior */}
       <motion.aside
         initial={{ x: -100 }}
         animate={{ x: 0 }}
@@ -43,6 +48,7 @@ function DashboardLayout() {
         } bg-white shadow-lg hidden md:block transition-all duration-300 ease-in-out fixed h-[calc(100vh-64px)] top-16`}
       >
         <div className="h-full flex flex-col">
+          {/* Sidebar Header with Toggle Button */}
           <motion.div
             className="p-4 mt-4 flex items-center justify-between"
             whileHover={{ scale: 1.01 }}
@@ -66,6 +72,7 @@ function DashboardLayout() {
             </motion.button>
           </motion.div>
 
+          {/* Navigation Links with Active State Animations */}
           <nav className="flex-1 p-4 overflow-y-auto">
             <ul className="space-y-2">
               {sidebarLinks.map((link, index) => {
@@ -86,6 +93,7 @@ function DashboardLayout() {
                       }`}
                       whileHover={{ x: 4 }}
                     >
+                      {/* Active Tab Background Animation */}
                       {isActive && (
                         <motion.div
                           layoutId="activeTab"
@@ -98,6 +106,7 @@ function DashboardLayout() {
                       {isExpanded && (
                         <span className="relative z-10">{link.label}</span>
                       )}
+                      {/* Active Tab Indicator */}
                       {isActive && (
                         <motion.div
                           className="absolute left-0 w-1 h-full bg-brand-blue rounded-r-full"
@@ -114,6 +123,7 @@ function DashboardLayout() {
             </ul>
           </nav>
 
+          {/* Logout Button with Animation */}
           <motion.div
             className="p-4 border-t"
             initial={{ opacity: 0 }}
@@ -135,6 +145,7 @@ function DashboardLayout() {
         </div>
       </motion.aside>
 
+      {/* Main Content Area with Dynamic Margin */}
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

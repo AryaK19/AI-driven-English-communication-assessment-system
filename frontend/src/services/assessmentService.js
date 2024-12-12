@@ -4,6 +4,7 @@ import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const saveAssessment = async (assessmentData, onProgressUpdate) => {
+  // Extract video URLs from feedback array, filtering out any undefined/null values
   const videoUrls = assessmentData.feedback
     .map((f) => f?.videoUrl)
     .filter(Boolean);
@@ -18,25 +19,25 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
     throw new Error("User email not found in localStorage");
   }
 
-  // Upload all videos to S3 first
+  // Sequential upload of videos to S3 with progress tracking
   for (let i = 0; i < videoUrls.length; i++) {
     const s3Data = await uploadVideo(videoUrls[i], i);
     uploadedUrls.push(s3Data.url);
     onProgressUpdate(((i + 1) / videoUrls.length) * 100);
   }
 
-  // Replace original video URLs with S3 URLs in the feedback array
+  // Replace local video URLs with S3 URLs while preserving other feedback data
   const updatedFeedback = assessmentData.feedback.map((feedback, index) => ({
     ...feedback,
-    videoUrl: uploadedUrls[index] || feedback.videoUrl // fallback to original URL if upload failed
+    videoUrl: uploadedUrls[index] || feedback.videoUrl // Fallback to original URL if upload failed
   }));
 
-  // Update assessment data with new URLs
   const updatedAssessmentData = {
     ...assessmentData,
     feedback: updatedFeedback
   };
 
+  // Stringify data for backend storage compatibility
   const dataToStore = JSON.stringify(updatedAssessmentData);
 
   const response = await axios.post(
@@ -89,7 +90,7 @@ export const getAssessment = async (assessmentId) => {
 
     const { id, data, dateAndTime, createdAt, updatedAt } = response.data.assessment;
 
-    // Parse the data if it's a string
+    // Handle backend data format which stores complex objects as JSON strings
     let parsedData;
     try {
       parsedData = typeof data === 'string' ? JSON.parse(data) : data;
@@ -119,6 +120,7 @@ export const getAllAssessments = async () => {
       },
     });
 
+    // Handle both MongoDB _id and normalized id fields for compatibility
     return response.data.assessments.map((assessment) => ({
       id: assessment._id || assessment.id,
       data: assessment.data,

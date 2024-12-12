@@ -32,7 +32,7 @@ import SettingOutlined from "@ant-design/icons/SettingOutlined";
 import UserOutlined from "@ant-design/icons/UserOutlined";
 import avatar1 from "../../assets/users/avatar-1.png";
 
-// tab panel wrapper
+// Accessible tab panel wrapper with ARIA support
 function TabPanel({ children, value, index, ...other }) {
   return (
     <div
@@ -47,6 +47,7 @@ function TabPanel({ children, value, index, ...other }) {
   );
 }
 
+// Helper function for tab accessibility props
 function a11yProps(index) {
   return {
     id: `profile-tab-${index}`,
@@ -54,16 +55,15 @@ function a11yProps(index) {
   };
 }
 
-// ==============================|| HEADER CONTENT - PROFILE ||============================== //
-
 export default function Profile() {
-  // Hardcoded theme settings
-  const iconBackColorOpen = "#f5f5f5"; // grey.100
-  const textPrimary = "#000000"; // text.primary
-  const secondaryLighter = "#e0e0e0"; // secondary.lighter
+  // Theme constants for consistent styling
+  const iconBackColorOpen = "#f5f5f5";
+  const textPrimary = "#000000";
+  const secondaryLighter = "#e0e0e0";
   const boxShadow =
-    "0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.24)"; // custom shadow
+    "0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.24)";
 
+  // Refs and state for popper positioning and animation
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
   const handleToggle = () => {
@@ -77,6 +77,7 @@ export default function Profile() {
     setOpen(false);
   };
 
+  // State management for tabs and profile image
   const [value, setValue] = useState(0);
   const [profileImage, setProfileImage] = useState(null);
   const navigate = useNavigate();
@@ -85,8 +86,8 @@ export default function Profile() {
     setValue(newValue);
   };
 
+  // Sync profile image with Firebase auth state
   useEffect(() => {
-    // Check the current user from Firebase
     const currentUser = auth.currentUser;
     if (currentUser && currentUser.photoURL) {
       setProfileImage(currentUser.photoURL);
@@ -97,6 +98,7 @@ export default function Profile() {
     console.log("Profile Image updated:", profileImage);
   }, [profileImage]);
 
+  // Handle user logout with Firebase auth
   const handleLogout = async () => {
     try {
       await logoutUser();
@@ -109,6 +111,7 @@ export default function Profile() {
 
   return (
     <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+      {/* Profile Button Trigger */}
       <ButtonBase
         sx={{
           p: 0.25,
@@ -116,7 +119,7 @@ export default function Profile() {
           borderRadius: 1,
           "&:hover": { bgcolor: secondaryLighter },
           "&:focus-visible": {
-            outline: `2px solid #FF4081`, // Hardcoded for secondary dark
+            outline: `2px solid #FF4081`,
             outlineOffset: 2,
           },
         }}
@@ -138,6 +141,8 @@ export default function Profile() {
           </Typography>
         </Stack>
       </ButtonBase>
+
+      {/* Profile Dropdown Menu with Animation */}
       <Popper
         placement="bottom-end"
         open={open}
@@ -173,6 +178,7 @@ export default function Profile() {
             >
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard elevation={0} border={false} content={false}>
+                  {/* Profile Header */}
                   <CardContent sx={{ px: 2.5, pt: 3 }}>
                     <Grid
                       container
@@ -192,7 +198,6 @@ export default function Profile() {
                           />
                           <Stack>
                             <Typography variant="h6">
-                              {" "}
                               {JSON.parse(localStorage.getItem("currUser"))
                                 ?.username || "Guest"}
                             </Typography>
@@ -216,9 +221,8 @@ export default function Profile() {
                     </Grid>
                   </CardContent>
 
+                  {/* Profile Tabs Navigation */}
                   <Box sx={{ borderBottom: 1, borderColor: "#D3D3D3" }}>
-                    {" "}
-                    {/* Hardcoded border color */}
                     <Tabs
                       variant="fullWidth"
                       value={value}
@@ -259,6 +263,8 @@ export default function Profile() {
                       />
                     </Tabs>
                   </Box>
+
+                  {/* Tab Content */}
                   <TabPanel value={value} index={0} dir="ltr">
                     <ProfileTab />
                   </TabPanel>

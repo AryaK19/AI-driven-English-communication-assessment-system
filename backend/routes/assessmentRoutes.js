@@ -4,10 +4,10 @@ import Assessment from "../models/Assessment.js";
 
 const router = express.Router();
 
+// GET /all - Retrieves all assessments for a user with transformed MongoDB IDs
 router.get("/all", async (req, res) => {
   try {
-    // Get current user from request headers
-    
+    // Authentication: Verify user through email in headers
     const currUserEmail = req.headers["x-user-email"];
     if (!currUserEmail) {
       return res
@@ -15,40 +15,37 @@ router.get("/all", async (req, res) => {
         .json({ error: "User email is required in headers." });
     }
 
-    // Find the user by email and populate their assessments
+    // Populate assessments to get full assessment objects instead of just IDs
     const user = await User.findOne({ email: currUserEmail }).populate(
       "assessments"
     );
-
-
 
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Map over assessments to include the _id (id) and other fields
+    // Transform MongoDB _id to id for frontend consistency
     const assessmentsWithIds = user.assessments.map((assessment) => ({
-      id: assessment._id, // MongoDB _id will be mapped to id
+      id: assessment._id,
       data: assessment.data,
       dateAndTime: assessment.dateAndTime,
       createdAt: assessment.createdAt,
       updatedAt: assessment.updatedAt,
     }));
 
-    // Return the assessments with the ids
     return res.status(200).json({ assessments: assessmentsWithIds });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 });
-// Route to save an assessment
+
+// POST /save - Stores assessment data as stringified JSON and links it to user
 router.post("/save", async (req, res) => {
   try {
     const { assessmentData } = req.body;
 
     console.log("Assessment data ready to save:", assessmentData);
 
-    // Get current user from request headers
     const currUserEmail = req.headers["x-user-email"];
     if (!currUserEmail) {
       return res
@@ -56,19 +53,18 @@ router.post("/save", async (req, res) => {
         .json({ error: "User email is required in headers." });
     }
 
-    // Find the user by email
     const user = await User.findOne({ email: currUserEmail });
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Create and save the assessment
+    // Store assessment data as stringified JSON to maintain complex data structures
     const newAssessment = new Assessment({
       data: JSON.stringify(assessmentData),
     });
     const savedAssessment = await newAssessment.save();
 
-    // Associate the assessment with the user
+    // Link assessment to user by storing its reference
     user.assessments.push(savedAssessment._id);
     await user.save();
 
@@ -81,12 +77,10 @@ router.post("/save", async (req, res) => {
   }
 });
 
-// Route to delete an assessment
 router.delete("/:id", async (req, res) => {
   try {
     const { id: assessmentId } = req.params;
 
-    // Get current user from request headers
     const currUserEmail = req.headers["x-user-email"];
     if (!currUserEmail) {
       return res
@@ -94,23 +88,21 @@ router.delete("/:id", async (req, res) => {
         .json({ error: "User email is required in headers." });
     }
 
-    // Find the user by email
     const user = await User.findOne({ email: currUserEmail });
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Check if the assessment ID exists in the user's assessments
+    // Verify assessment ownership before deletion
     if (!user.assessments.includes(assessmentId)) {
       return res
         .status(404)
         .json({ error: "Assessment not associated with the user." });
     }
 
-    // Remove the assessment from the database
     await Assessment.findByIdAndDelete(assessmentId);
 
-    // Remove the assessment ID from the user's assessments array
+    // Remove assessment reference from user's assessments array
     user.assessments = user.assessments.filter(
       (id) => id.toString() !== assessmentId
     );
@@ -124,12 +116,10 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// Route to get data for a specific assessment
 router.get("/:id", async (req, res) => {
   try {
     const { id: assessmentId } = req.params;
 
-    // Get current user from request headers
     const currUserEmail = req.headers["x-user-email"];
     if (!currUserEmail) {
       return res
@@ -137,29 +127,26 @@ router.get("/:id", async (req, res) => {
         .json({ error: "User email is required in headers." });
     }
 
-    // Find the user by email
     const user = await User.findOne({ email: currUserEmail });
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Check if the assessment ID exists in the user's assessments
+    // Verify assessment ownership before retrieval
     if (!user.assessments.includes(assessmentId)) {
       return res
         .status(404)
         .json({ error: "Assessment not associated with the user." });
     }
 
-    // Retrieve the assessment from the database
     const assessment = await Assessment.findById(assessmentId);
     if (!assessment) {
       return res.status(404).json({ error: "Assessment not found." });
     }
 
-    // Return the assessment with its id and other details
     return res.status(200).json({
       assessment: {
-        id: assessment._id, // The MongoDB _id is returned as 'id'
+        id: assessment._id,
         data: assessment.data,
         dateAndTime: assessment.dateAndTime,
         createdAt: assessment.createdAt,
@@ -170,6 +157,5 @@ router.get("/:id", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
-
 
 export default router;

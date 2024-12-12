@@ -33,30 +33,33 @@ import {
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
 import EyeInvisibleOutlined from "@ant-design/icons/EyeInvisibleOutlined";
 
-// ============================|| JWT - REGISTER ||============================ //
-
 export default function AuthRegister() {
   const navigate = useNavigate();
+  // State for password strength visualization
   const [level, setLevel] = useState();
   const [showPassword, setShowPassword] = useState(false);
 
+  // Password visibility toggle handlers
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
   const handleMouseDownPassword = (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent focus loss on mouse down
   };
 
+  // Update password strength indicator on password change
   const changePassword = (value) => {
     const temp = strengthIndicator(value);
     setLevel(strengthColor(temp));
   };
 
+  // Handle form submission with Firebase registration
   const handleRegisterSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
       const { firstname, lastname, email, company, password } = values;
 
+      // Create Firebase user account
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -65,35 +68,34 @@ export default function AuthRegister() {
 
       const firebaseUser = userCredential.user;
 
-      // Create the payload to save to the database
+      // Prepare user data for database storage
       const userPayload = {
         username: `${firstname} ${lastname}`,
         email: firebaseUser.email,
-        token: firebaseUser.uid, // Using Firebase UID as token
+        token: firebaseUser.uid, // Using Firebase UID for session management
       };
 
-      // Call the API to save or retrieve the user in the database
+      // Save user data to backend database
       const user = await saveOrRetrieveUser(userPayload);
 
       console.log("User successfully registered and saved:", user);
 
-      // Store token in local storage or handle it as needed
+      // Set up user session
       localStorage.setItem("token", user.token);
       localStorage.setItem("currUser", JSON.stringify(userPayload));
 
-      // Navigate to the dashboard after successful registration
       navigate("/dashboard");
     } catch (error) {
       console.error("Error during registration:", error);
-      // Handle errors and set them in the form
       setErrors({
-        submit: error.response?.data?.message || "User already exsists",
+        submit: error.response?.data?.message || "User already exists",
       });
     } finally {
       setSubmitting(false);
     }
   };
 
+  // Initialize password strength on component mount
   useEffect(() => {
     changePassword("");
   }, []);
@@ -109,6 +111,7 @@ export default function AuthRegister() {
           password: "",
           submit: null,
         }}
+        // Form validation schema with Yup
         validationSchema={Yup.object().shape({
           firstname: Yup.string().max(255).required("First Name is required"),
           lastname: Yup.string().max(255).required("Last Name is required"),
@@ -134,9 +137,10 @@ export default function AuthRegister() {
           <form
             noValidate
             onSubmit={handleSubmit}
-            style={{ fontFamily: "'Poppins', sans-serif" }} // Custom font family
+            style={{ fontFamily: "'Poppins', sans-serif" }}
           >
             <Grid container spacing={3}>
+              {/* First Name Field */}
               <Grid item xs={12} md={6}>
                 <Stack spacing={1}>
                   <InputLabel
@@ -168,6 +172,8 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
+              {/* Last Name Field */}
               <Grid item xs={12} md={6}>
                 <Stack spacing={1}>
                   <InputLabel
@@ -199,6 +205,8 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
+              {/* Company Field (Optional) */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel
@@ -229,6 +237,8 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
+              {/* Email Field */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel
@@ -260,6 +270,8 @@ export default function AuthRegister() {
                   </FormHelperText>
                 )}
               </Grid>
+
+              {/* Password Field with Strength Indicator */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel
@@ -310,6 +322,7 @@ export default function AuthRegister() {
                     {errors.password}
                   </FormHelperText>
                 )}
+                {/* Password Strength Visualization */}
                 <FormControl fullWidth sx={{ mt: 2 }}>
                   <Grid container spacing={2} alignItems="center">
                     <Grid item>
@@ -334,6 +347,8 @@ export default function AuthRegister() {
                   </Grid>
                 </FormControl>
               </Grid>
+
+              {/* Terms and Conditions */}
               <Grid item xs={12}>
                 <Typography
                   variant="body2"
@@ -359,6 +374,8 @@ export default function AuthRegister() {
                   </Link>
                 </Typography>
               </Grid>
+
+              {/* Error Message Display */}
               {errors.submit && (
                 <Grid item xs={12}>
                   <FormHelperText
@@ -369,6 +386,8 @@ export default function AuthRegister() {
                   </FormHelperText>
                 </Grid>
               )}
+
+              {/* Submit Button */}
               <Grid item xs={12}>
                 <AnimateButton>
                   <Button
