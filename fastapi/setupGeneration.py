@@ -116,7 +116,7 @@ def generate_questions(setup: AssessmentSetup) -> List[str]:
                     "content": prompt
                 }
             ],
-            model="-3.2-3b-preview",
+            model="llama-3.2-3b-preview",
             temperature=0.7,
             max_tokens=2000,
             top_p=1,
