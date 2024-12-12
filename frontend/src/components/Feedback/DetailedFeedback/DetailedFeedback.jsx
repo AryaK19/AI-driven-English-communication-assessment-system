@@ -1,4 +1,3 @@
-// src/components/Feedback/DetailedFeedback/index.jsx
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QuestionCard from './QuestionCard';
@@ -12,6 +11,27 @@ const DetailedFeedback = ({
   loadingIdealAnswer,
   idealAnswers 
 }) => {
+  // Helper function to check if a question is expanded
+  const isQuestionExpanded = (index) => {
+    if (Array.isArray(expandedQuestion)) {
+      return expandedQuestion.includes(index);
+    }
+    return expandedQuestion === index;
+  };
+
+  // Helper function to toggle question expansion
+  const toggleQuestion = (index) => {
+    if (Array.isArray(expandedQuestion)) {
+      if (expandedQuestion.includes(index)) {
+        setExpandedQuestion(expandedQuestion.filter(i => i !== index));
+      } else {
+        setExpandedQuestion([...expandedQuestion, index]);
+      }
+    } else {
+      setExpandedQuestion([index]);
+    }
+  };
+
   return (
     <AnimatePresence>
       {showDetailedFeedback && (
@@ -26,8 +46,8 @@ const DetailedFeedback = ({
               key={index}
               index={index}
               question={question}
-              expandedQuestion={expandedQuestion}
-              setExpandedQuestion={setExpandedQuestion}
+              isExpanded={isQuestionExpanded(index)}
+              toggleExpanded={() => toggleQuestion(index)}
               feedback={assessmentData.feedback[index]}
               handleGetIdealAnswer={handleGetIdealAnswer}
               loadingIdealAnswer={loadingIdealAnswer}

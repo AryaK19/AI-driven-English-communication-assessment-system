@@ -1,4 +1,3 @@
-// src/components/Feedback/DetailedFeedback/QuestionCard.jsx
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import VideoPlayer from './VideoPlayer';
@@ -8,13 +7,21 @@ import AssessmentSection from './AssessmentSection';
 const QuestionCard = ({
   index,
   question,
-  expandedQuestion,
-  setExpandedQuestion,
+  isExpanded,
+  toggleExpanded,
   feedback,
   handleGetIdealAnswer,
   loadingIdealAnswer,
   idealAnswer
 }) => {
+  // Helper function to safely get text content
+  const getQuestionText = (text) => {
+    if (!text) return '';
+    return typeof text === 'string' ? text : text.text || '';
+  };
+
+  const questionText = getQuestionText(question);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -25,29 +32,33 @@ const QuestionCard = ({
       {/* Question Header */}
       <motion.div
         className="p-6 cursor-pointer"
-        onClick={() => setExpandedQuestion(expandedQuestion === index ? null : index)}
+        onClick={toggleExpanded}
       >
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Question {index + 1}</h2>
           <motion.div
-            animate={{ rotate: expandedQuestion === index ? 180 : 0 }}
+            animate={{ rotate: isExpanded ? 180 : 0 }}
             className="text-brand-blue"
           >
             ▼
           </motion.div>
         </div>
-        <p className="text-gray-700 mt-2">{question}</p>
+        <p className="text-gray-700 mt-2">{questionText}</p>
       </motion.div>
 
       {/* Expanded Content */}
-      <AnimatePresence>
-        {expandedQuestion === index && feedback && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="px-6 pb-6 space-y-4"
-          >
+      <div 
+        data-question-content
+        style={{
+          display: isExpanded ? 'block' : 'none',
+          opacity: isExpanded ? 1 : 0,
+          height: isExpanded ? 'auto' : 0,
+          overflow: isExpanded ? 'visible' : 'hidden'
+        }}
+        className="px-6 pb-6 space-y-4"
+      >
+        {feedback && (
+          <>
             <VideoPlayer videoUrl={feedback.videoUrl} />
             
             <div className="text-gray-600">
@@ -55,7 +66,7 @@ const QuestionCard = ({
             </div>
 
             <IdealAnswerSection 
-              question={question}
+              question={questionText}
               answer={feedback.text}
               index={index}
               handleGetIdealAnswer={handleGetIdealAnswer}
@@ -64,9 +75,9 @@ const QuestionCard = ({
             />
 
             <AssessmentSection feedback={feedback} />
-          </motion.div>
+          </>
         )}
-      </AnimatePresence>
+      </div>
     </motion.div>
   );
 };
