@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, ArrowLeft, Volume2, Video, VideoOff, Clock, Target, BookOpen, Star, XCircle, Loader, FileText, ChevronRight} from "lucide-react";
+import { CheckCircle, ArrowLeft, Volume2, Video, VideoOff, Clock, Target, BookOpen, Star, XCircle, Loader, FileText, ChevronRight, AlertCircle} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WaveformVisualizer from "./WaveformVisualizer";
 
@@ -12,6 +12,10 @@ function AssessmentContent({currentQuestionIndex,questions,isRecording,startReco
     <Target key="target" className="text-brand-blue" size={24} />,
     <Star key="star" className="text-brand-blue" size={24} />
   ];
+
+  const getWordCount = (text) => {
+    return text.trim().split(/\s+/).length;
+  };
 
   return (
     <motion.div
@@ -131,7 +135,12 @@ function AssessmentContent({currentQuestionIndex,questions,isRecording,startReco
           transition={{ duration: 0.3 }}
           className="mt-3 p-4 bg-white rounded-xl shadow-md border border-brand-blue/10"
         >
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Transcribed Speech:</h3>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-sm font-medium text-gray-500">Transcribed Speech:</h3>
+            <span className={`text-sm font-medium ${getWordCount(transcribedText) >= 30 ? 'text-green-600' : 'text-orange-500'}`}>
+              Word Count: {getWordCount(transcribedText)}
+            </span>
+          </div>
           <div className="max-h-[90px] overflow-y-auto pr-2 custom-scrollbar">
             <p className="text-gray-800">{transcribedText}</p>
           </div>
@@ -143,9 +152,17 @@ function AssessmentContent({currentQuestionIndex,questions,isRecording,startReco
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-4 p-4 bg-red-50 text-red-600 rounded-lg"
+          className="mt-4 p-4 bg-red-50 rounded-lg flex items-start gap-3"
         >
-          {error}
+          <AlertCircle className="text-red-600 mt-0.5" size={20} />
+          <div className="flex-1">
+            <p className="text-red-600 font-medium">{error}</p>
+            {error.includes("word") && (
+              <p className="text-red-500 text-sm mt-1">
+                Please provide a longer answer to proceed.
+              </p>
+            )}
+          </div>
         </motion.div>
       )}
 

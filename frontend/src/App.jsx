@@ -8,6 +8,8 @@ import {
   FeedbackPage,
   AssessmentSetup,
 } from "./pages/Assessment";
+import { OverallReport } from "./pages/OverallReport";
+import OverallReportLayout from "./layouts/OverallReportLayout";
 
 import { Login, Register } from "./pages/authentication";
 import { Home } from "./pages/Home";
@@ -58,6 +60,7 @@ function App() {
               }
             >
               <Route index element={<Dashboard />} />
+              <Route path="reports" element={<OverallReport />} />
               {assessmentRoutes.map(({ path, element }) => (
                 <Route
                   key={path}
@@ -65,6 +68,11 @@ function App() {
                   element={element}
                 />
               ))}
+              {/* New route for detailed assessment feedback with layout */}
+              <Route
+                path="reports/:id/feedback"
+                element={<OverallReportLayout />}
+              />
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

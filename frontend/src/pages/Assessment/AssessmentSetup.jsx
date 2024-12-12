@@ -32,14 +32,16 @@ function AssessmentSetup() {
 
   const languages = [
     { id: 'English', label: 'English', nativeName: 'English' },
-    { id: 'German', label: 'German', nativeName: 'Deutsch' },
-    { id: 'French', label: 'French', nativeName: 'Français' },
-    { id: 'Italian', label: 'Italian', nativeName: 'Italiano' },
-    { id: 'Portuguese', label: 'Portuguese', nativeName: 'Português' },
     { id: 'Hindi', label: 'Hindi', nativeName: 'हिंदी' },
-    { id: 'Spanish', label: 'Spanish', nativeName: 'Español' },
-    { id: 'Thai', label: 'Thai', nativeName: 'ภาษาไทย' }
-  ];
+    { id: 'Bengali', label: 'Bengali', nativeName: 'বাংলা' },
+    { id: 'Gujarati', label: 'Gujarati', nativeName: 'ગુજરાતી' },
+    { id: 'Kannada', label: 'Kannada', nativeName: 'ಕನ್ನಡ' },
+    { id: 'Malayalam', label: 'Malayalam', nativeName: 'മലയാളം' },
+    { id: 'Marathi', label: 'Marathi', nativeName: 'मराठी' },
+    { id: 'Punjabi', label: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
+    { id: 'Tamil', label: 'Tamil', nativeName: 'தமிழ்' },
+    { id: 'Telugu', label: 'Telugu', nativeName: 'తెలుగు' },
+];
 
   const questionTypes = [
     { id: 'general', label: 'General Conversation', icon: BookOpen, description: 'Everyday communication scenarios' },
