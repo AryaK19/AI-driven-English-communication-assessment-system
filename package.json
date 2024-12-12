@@ -8,9 +8,9 @@
     "frontend": "cd frontend && npm i && npm run dev",
     "backend": "cd backend && npm i && nodemon app.js",
     "fastapi": "cd fastapi && .\\venv\\Scripts\\activate && uvicorn main:app --reload --port 8000",
-    "fastapiv": "cd fastapi && conda activate sea && uvicorn main:app --reload --port 8000",
+    "fastapi-unix": "cd fastApi && source venv/bin/activate && uvicorn main:app --reload --port 8000",
     "dev": "concurrently -k  \"npm run backend\" \"npm run frontend\" \"npm run fastapi\"",
-    "devv": "concurrently -k  \"npm run backend\" \"npm run frontend\" \"npm run fastapiv\""
+    "dev-unix": "concurrently -k  \"npm run server\" \"npm run client\" \"npm run fastapi-unix\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

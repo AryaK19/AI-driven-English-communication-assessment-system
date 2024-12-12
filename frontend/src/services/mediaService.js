@@ -1,4 +1,6 @@
 import { fastApi } from './api';
+const API_FASTAPI_URL = import.meta.env.VITE_API_FASTAPI_URL;
+
 
 export const sendMediaToServer = async (mediaBlob, questionIndex, currentQuestion, language = "English") => {
   if (!mediaBlob || mediaBlob.size === 0) {
