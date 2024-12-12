@@ -69,10 +69,10 @@ function Home() {
   return (
     <div className="space-y-16 bg-gradient-to-b from-white to-gray-50">
       {/* Hero Section with Logo */}
-      <section className="text-center space-y-8 py-16 relative overflow-hidden">
+      <section className="text-center space-y-8 py-10 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-brand-blue/5 to-brand-purple/5" />
         <div className="max-w-xs mx-auto mb-8">
-          <img src="\public\images\logo.png" alt="PluginLive Logo" className="w-full" />
+          <img src="\images\logo.png" alt="PluginLive Logo" className="w-full" />
         </div>
         <h1 className="text-6xl font-bold text-gray-900 relative">
           Professional <span className="text-brand-blue">Communication</span>{" "}

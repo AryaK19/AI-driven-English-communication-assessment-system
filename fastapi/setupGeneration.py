@@ -22,13 +22,15 @@ class AssessmentSetup(BaseModel):
 def generate_prompt(setup: AssessmentSetup) -> str:
     language_prompts = {
         "English": "English",
-        "German": "German (Deutsch)",
-        "French": "French (Français)",
-        "Italian": "Italian (Italiano)",
-        "Portuguese": "Portuguese (Português)",
         "Hindi": "Hindi (हिंदी)",
-        "Spanish": "Spanish (Español)",
-        "Thai": "Thai (ภาษาไทย)"
+        "Bengali": "Bengali (বাংলা)",
+        "Gujarati": "Gujarati (ગુજરાતી)",
+        "Kannada": "Kannada (ಕನ್ನಡ)",
+        "Malayalam": "Malayalam (മലയാളം)",
+        "Marathi": "Marathi (मराठी)",
+        "Punjabi": "Punjabi (ਪੰਜਾਬੀ)",
+        "Tamil": "Tamil (தமிழ்)",
+        "Telugu": "Telugu (తెలుగు)"
     }
     
     selected_language = language_prompts.get(setup.language, "English")

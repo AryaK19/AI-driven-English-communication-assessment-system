@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Home, FileText, Settings, LogOut, Menu } from "lucide-react";
-
-
 import { motion } from "framer-motion";
 import { logoutUser } from "../services/logoutUser";
 
@@ -13,7 +11,7 @@ function DashboardLayout() {
 
   const sidebarLinks = [
     { icon: <Home size={20} />, label: "Overview", path: "/dashboard" },
-    { icon: <FileText size={20} />, label: "Reports", path: "/reports" },
+    { icon: <FileText size={20} />, label: "Reports", path: "/dashboard/reports" },
     { icon: <Settings size={20} />, label: "Settings", path: "/settings" },
   ];
 

@@ -8,6 +8,7 @@ import {
   FeedbackPage,
   AssessmentSetup,
 } from "./pages/Assessment";
+import { OverallReport } from "./pages/OverallReport";
 
 import { Login, Register } from "./pages/authentication";
 import { Home } from "./pages/Home";
@@ -58,6 +59,7 @@ function App() {
               }
             >
               <Route index element={<Dashboard />} />
+              <Route path="reports" element={<OverallReport />} />
               {assessmentRoutes.map(({ path, element }) => (
                 <Route
                   key={path}
