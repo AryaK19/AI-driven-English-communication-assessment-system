@@ -9,7 +9,8 @@ import {
   Sparkles,
   Plus,
   Lightbulb,
-  Gauge
+  Gauge,
+  Globe2
 } from 'lucide-react';
 
 function AssessmentSetup() {
@@ -19,6 +20,7 @@ function AssessmentSetup() {
     numberOfQuestions: 4,
     topic: 'daily_life',
     difficulty: 'intermediate',
+    language: 'English',
     customQuestionType: '',
     customTopic: ''
   });
@@ -27,6 +29,17 @@ function AssessmentSetup() {
     questionType: false,
     topic: false
   });
+
+  const languages = [
+    { id: 'English', label: 'English', nativeName: 'English' },
+    { id: 'German', label: 'German', nativeName: 'Deutsch' },
+    { id: 'French', label: 'French', nativeName: 'Français' },
+    { id: 'Italian', label: 'Italian', nativeName: 'Italiano' },
+    { id: 'Portuguese', label: 'Portuguese', nativeName: 'Português' },
+    { id: 'Hindi', label: 'Hindi', nativeName: 'हिंदी' },
+    { id: 'Spanish', label: 'Spanish', nativeName: 'Español' },
+    { id: 'Thai', label: 'Thai', nativeName: 'ภาษาไทย' }
+  ];
 
   const questionTypes = [
     { id: 'general', label: 'General Conversation', icon: BookOpen, description: 'Everyday communication scenarios' },
@@ -96,6 +109,31 @@ function AssessmentSetup() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-12">
+            {/* Language Selection */}
+            <div className="space-y-4">
+              <label className="text-xl font-semibold text-gray-900 block flex items-center gap-2">
+                <Globe2 className="w-6 h-6 text-brand-blue" />
+                Assessment Language
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {languages.map(lang => (
+                  <button
+                    key={lang.id}
+                    type="button"
+                    onClick={() => handleInputChange('language', lang.id)}
+                    className={`p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                      formData.language === lang.id
+                        ? 'border-brand-blue bg-brand-blue/5 shadow-lg'
+                        : 'border-gray-100 hover:border-brand-blue/50 shadow hover:shadow-lg'
+                    }`}
+                  >
+                    <span className="block text-lg font-semibold mb-1">{lang.label}</span>
+                    <span className="block text-sm text-gray-500">{lang.nativeName}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Question Type Selection */}
             <div className="space-y-4">
               <label className="text-xl font-semibold text-gray-900 block">
@@ -107,16 +145,18 @@ function AssessmentSetup() {
                     key={type.id}
                     type="button"
                     onClick={() => handleInputChange('questionType', type.id)}
-                    className={`p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg ${formData.questionType === type.id
+                    className={`p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                      formData.questionType === type.id
                         ? 'border-brand-blue bg-brand-blue/5 shadow-lg'
                         : 'border-gray-100 hover:border-brand-blue/50 shadow'
-                      }`}
+                    }`}
                   >
                     <type.icon
-                      className={`w-8 h-8 mb-3 ${formData.questionType === type.id
+                      className={`w-8 h-8 mb-3 ${
+                        formData.questionType === type.id
                           ? 'text-brand-blue'
                           : 'text-gray-400'
-                        }`}
+                      }`}
                     />
                     <span className="block text-base font-semibold mb-2">
                       {type.label}
@@ -176,13 +216,15 @@ function AssessmentSetup() {
                     key={topic.id}
                     type="button"
                     onClick={() => handleInputChange('topic', topic.id)}
-                    className={`p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${formData.topic === topic.id
+                    className={`p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                      formData.topic === topic.id
                         ? 'border-brand-purple bg-brand-purple/5 text-brand-purple shadow-lg'
                         : 'border-gray-100 text-gray-600 hover:border-brand-purple/50 shadow hover:shadow-lg'
-                      }`}
+                    }`}
                   >
-                    <topic.icon className={`w-6 h-6 mb-2 mx-auto ${formData.topic === topic.id ? 'text-brand-purple' : 'text-gray-400'
-                      }`} />
+                    <topic.icon className={`w-6 h-6 mb-2 mx-auto ${
+                      formData.topic === topic.id ? 'text-brand-purple' : 'text-gray-400'
+                    }`} />
                     <span className="block text-center">{topic.label}</span>
                   </button>
                 ))}
@@ -211,13 +253,15 @@ function AssessmentSetup() {
                     key={level.id}
                     type="button"
                     onClick={() => handleInputChange('difficulty', level.id)}
-                    className={`group p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${formData.difficulty === level.id
+                    className={`group p-6 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                      formData.difficulty === level.id
                         ? `${level.color} border-transparent text-white shadow-lg`
                         : 'border-gray-100 text-gray-600 hover:shadow-lg'
-                      }`}
+                    }`}
                   >
-                    <level.icon className={`w-6 h-6 mb-2 mx-auto ${formData.difficulty === level.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'
-                      }`} />
+                    <level.icon className={`w-6 h-6 mb-2 mx-auto ${
+                      formData.difficulty === level.id ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'
+                    }`} />
                     <span className="block text-center font-medium">
                       {level.label}
                     </span>

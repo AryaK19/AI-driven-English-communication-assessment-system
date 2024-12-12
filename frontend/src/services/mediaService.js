@@ -1,75 +1,70 @@
-<<<<<<< HEAD
-export const sendMediaToServer = async (mediaBlob, questionIndex, questionText) => {
-=======
-export const sendMediaToServer = async (mediaBlob, questionIndex) => {
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
+import { fastApi } from './api';
+
+export const sendMediaToServer = async (mediaBlob, questionIndex, language = "English") => {
   if (!mediaBlob || mediaBlob.size === 0) {
     throw new Error("No recording data available");
   }
 
-  const formData = new FormData();
-  formData.append(
-    "file",
-    mediaBlob,
-    `question_${questionIndex}.mp4`
-  );
-  formData.append("questionIndex", questionIndex);
-<<<<<<< HEAD
-  
-=======
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
+  try {
+    const formData = new FormData();
+    formData.append(
+      "file",
+      mediaBlob,
+      `question_${questionIndex}.mp4`
+    );
+    formData.append("questionIndex", questionIndex);
+    formData.append("language", language);
 
-  const response = await fetch("http://localhost:8000/process-audio", {
-    method: "POST",
-    body: formData,
-  });
+    const response = await fastApi.post("/process-audio", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Upload failed: ${errorText || response.statusText}`);
-  }
+    if (response.data.status === "error") {
+      throw new Error(response.data.message || "Failed to process audio");
+    }
 
-  const data = await response.json();
-  
-  if (data.status === "success" && data.text) {
-<<<<<<< HEAD
-    const feedbackData = await getFeedbackAnalysis(data.text, questionText);
-=======
-    const feedbackData = await getFeedbackAnalysis(data.text);
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
-    return {
-      transcribedText: data.text,
-      feedback: feedbackData
-    };
-  } else {
-    throw new Error(data.message || "Failed to transcribe audio");
+    if (response.data.status === "success" && response.data.text) {
+      // Get the questions from localStorage
+      const assessmentData = JSON.parse(localStorage.getItem('assessmentSetup'));
+      const currentQuestion = assessmentData?.questions?.[questionIndex];
+
+      // Get feedback analysis with the current question
+      const feedbackData = await getFeedbackAnalysis(
+        response.data.text,
+        currentQuestion,
+        language
+      );
+
+      return {
+        transcribedText: response.data.text,
+        feedback: feedbackData
+      };
+    } else {
+      throw new Error(response.data.message || "Failed to transcribe audio");
+    }
+  } catch (error) {
+    console.error("Error in sendMediaToServer:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to process audio");
   }
 };
 
-<<<<<<< HEAD
-export const getFeedbackAnalysis = async (text, questionText) => {
-  // console.log("text", text, "questionText", questionText);
-=======
-export const getFeedbackAnalysis = async (text) => {
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
-  const response = await fetch("http://localhost:8000/analyze-text", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-<<<<<<< HEAD
-    body: JSON.stringify({ 
+export const getFeedbackAnalysis = async (text, question = null, language = "English") => {
+  try {
+    const response = await fastApi.post("/analyze-text", {
       text,
-      questionText
-    }),
-=======
-    body: JSON.stringify({ text }),
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
-  });
+      question,
+      language
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to get feedback analysis");
+    if (response.data.status === "error") {
+      throw new Error(response.data.message || "Failed to get feedback analysis");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error in getFeedbackAnalysis:", error);
+    throw new Error(error.response?.data?.message || error.message || "Failed to get feedback analysis");
   }
-
-  return await response.json();
 };
