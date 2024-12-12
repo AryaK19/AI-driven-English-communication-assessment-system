@@ -19,7 +19,8 @@ function Dashboard() {
     {
       title: "Assessment",
       icon: <Mic className="w-8 h-8" />,
-      description: "Evaluate your spoken English skills with AI-powered analysis",
+      description:
+        "Evaluate your spoken English skills with AI-powered analysis",
       color: "bg-brand-blue",
       count: "Custom Tests Available",
       path: "assessment/setup",
@@ -81,7 +82,10 @@ function Dashboard() {
         >
           <div className="bg-white p-8 rounded-2xl shadow-sm">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">
-              Welcome back, User! 👋
+              Welcome back,{" "}
+              {JSON.parse(localStorage.getItem("currUser"))?.username ||
+                "Guest"}
+              👋
             </h1>
             <p className="text-gray-600 text-lg">
               Continue your learning journey today
@@ -134,7 +138,7 @@ function Dashboard() {
               <p className="mt-2 text-gray-600 leading-relaxed">
                 {assessment.description}
               </p>
-              
+
               {/* Stats Section */}
               {/* <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
                 <div className="flex items-center gap-1">
