@@ -28,7 +28,7 @@ function GrammarAssessment() {
   const videoRef = useRef(null);
 
   const MAX_RECORDING_TIME = 120; // 2 minutes
-  const MIN_WORD_COUNT = 30; // Minimum word count required
+  const MIN_WORD_COUNT = 2; // Minimum word count required
 
   useEffect(() => {
     const loadQuestions = async () => {
