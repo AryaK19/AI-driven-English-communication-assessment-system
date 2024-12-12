@@ -75,18 +75,18 @@ const OverallPerformance = ({
       weight: '15%'
     },
     { 
-      label: 'Vocabulary', 
-      count: overallStats.totalAdvancedWords, 
-      unit: 'advanced words used',
-      showPerformance: false
-    },
-    { 
       label: 'Answer Correctness', 
       performance: correctnessPerformance, 
       text: 'Based on relevance and quality',
       showPerformance: true,
       weight: '40%'
-    }
+    },
+    { 
+      label: 'Vocabulary', 
+      count: overallStats.totalAdvancedWords, 
+      unit: 'advanced words used',
+      showPerformance: false
+    },
   ];
 
   return (

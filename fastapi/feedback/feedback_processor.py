@@ -181,7 +181,7 @@ class FeedbackProcessor:
                 "error_count": 0,
                 "errors": []
             }
-<<<<<<< HEAD
+
         
     async def analyze_pauses(self, text: str, tempFileName: str) -> int:
         """
@@ -196,8 +196,6 @@ class FeedbackProcessor:
             return 0
         
 
-=======
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
 
     def _parse_grammar_response(self, response: str) -> Dict:
         """
@@ -239,11 +237,10 @@ class FeedbackProcessor:
 
 
 
-<<<<<<< HEAD
+
     async def analyze_text(self, text: str, question: Optional[str] = None, tempFileName: str = '') -> Dict:
-=======
-    async def analyze_text(self, text: str, question: Optional[str] = None) -> Dict:
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
+
+
         """
         Analyze text for grammar, pronunciation, vocabulary, fluency and answer correctness.
         """
@@ -251,13 +248,10 @@ class FeedbackProcessor:
         pronunciation_analysis = await self.analyze_pronunciation(text)
         vocabulary_analysis = analyze_vocabulary(text)
         fluency_analysis = self.analyze_fluency(text)
-<<<<<<< HEAD
+
         pause_analysis = await self.analyze_pauses(text,tempFileName)
         correctness_analysis = check_answer_correctness(question, text)
-    
-=======
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
-        
+
         # Add answer correctness analysis if question is provided
 
         feedback = {
@@ -265,11 +259,9 @@ class FeedbackProcessor:
             "pronunciation": pronunciation_analysis,
             "vocabulary": vocabulary_analysis,
             "fluency": fluency_analysis,
-<<<<<<< HEAD
             "pause_count": pause_analysis["total_pauses"],
             "correctness": correctness_analysis,
-=======
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
+
             "text": text
         }
 

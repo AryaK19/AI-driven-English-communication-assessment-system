@@ -112,8 +112,8 @@ const FeedbackPage = () => {
   // Calculate overall statistics and performance percentages
   const overallStats = assessmentData.feedback.reduce((acc, questionFeedback) => {
     if (questionFeedback) {
-      acc.totalGrammarErrors += questionFeedback.grammar.error_count;
-      acc.totalPronunciationErrors += questionFeedback.pronunciation.error_count;
+      acc.totalGrammarErrors += questionFeedback.grammar?.error_count;
+      acc.totalPronunciationErrors += questionFeedback.pronunciation?.error_count;
       if (questionFeedback.fluency) {
         acc.totalFluencyScore += formatScore(questionFeedback.fluency.fluency_score);
         acc.totalFillerWords += questionFeedback.fluency.filler_word_count;
@@ -129,13 +129,12 @@ const FeedbackPage = () => {
         acc.totalCorrectnessScore += formatScore(questionFeedback.correctness.score);
         acc.correctnessCount += 1;
       }
-<<<<<<< HEAD
+
       if (questionFeedback.pause_count !== undefined) {
         acc.totalPauses += questionFeedback.pause_count;
         acc.pauseCount += 1;
       }
-=======
->>>>>>> parent of 2a7344b (commit with deteiled error solved)
+
     }
     return acc;
   }, { 

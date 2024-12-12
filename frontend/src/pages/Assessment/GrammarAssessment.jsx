@@ -64,9 +64,10 @@ function GrammarAssessment() {
   const handleMediaUpload = async (mediaBlob) => {
     setIsLoading(true);
     setError(null);
+    const currentQuestionText = questions[currentQuestionIndex];
 
     try {
-      const result = await sendMediaToServer(mediaBlob, currentQuestionIndex, setupData?.language || "English");
+      const result = await sendMediaToServer(mediaBlob, currentQuestionIndex, currentQuestionText, setupData?.language || "English");
       setTranscribedText(result.transcribedText);
       
       // Create a URL for the video blob

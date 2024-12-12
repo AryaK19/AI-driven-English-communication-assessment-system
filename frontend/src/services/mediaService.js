@@ -1,6 +1,6 @@
 import { fastApi } from './api';
 
-export const sendMediaToServer = async (mediaBlob, questionIndex, language = "English") => {
+export const sendMediaToServer = async (mediaBlob, questionIndex, currentQuestion, language = "English") => {
   if (!mediaBlob || mediaBlob.size === 0) {
     throw new Error("No recording data available");
   }
@@ -28,7 +28,7 @@ export const sendMediaToServer = async (mediaBlob, questionIndex, language = "En
     if (response.data.status === "success" && response.data.text) {
       // Get the questions from localStorage
       const assessmentData = JSON.parse(localStorage.getItem('assessmentSetup'));
-      const currentQuestion = assessmentData?.questions?.[questionIndex];
+      
 
       // Get feedback analysis with the current question
       const feedbackData = await getFeedbackAnalysis(
@@ -50,7 +50,7 @@ export const sendMediaToServer = async (mediaBlob, questionIndex, language = "En
   }
 };
 
-export const getFeedbackAnalysis = async (text, question = null, language = "English") => {
+export const getFeedbackAnalysis = async (text, question, language = "English") => {
   try {
     const response = await fastApi.post("/analyze-text", {
       text,
