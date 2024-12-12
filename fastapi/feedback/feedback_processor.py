@@ -181,6 +181,7 @@ class FeedbackProcessor:
                 "error_count": 0,
                 "errors": []
             }
+
         
     async def analyze_pauses(self, text: str, tempFileName: str) -> int:
         """
@@ -236,7 +237,10 @@ class FeedbackProcessor:
 
 
 
+
     async def analyze_text(self, text: str, question: Optional[str] = None, tempFileName: str = '') -> Dict:
+
+
         """
         Analyze text for grammar, pronunciation, vocabulary, fluency and answer correctness.
         """
@@ -244,10 +248,10 @@ class FeedbackProcessor:
         pronunciation_analysis = await self.analyze_pronunciation(text)
         vocabulary_analysis = analyze_vocabulary(text)
         fluency_analysis = self.analyze_fluency(text)
+
         pause_analysis = await self.analyze_pauses(text,tempFileName)
         correctness_analysis = check_answer_correctness(question, text)
-    
-        
+
         # Add answer correctness analysis if question is provided
 
         feedback = {
@@ -257,6 +261,7 @@ class FeedbackProcessor:
             "fluency": fluency_analysis,
             "pause_count": pause_analysis["total_pauses"],
             "correctness": correctness_analysis,
+
             "text": text
         }
 

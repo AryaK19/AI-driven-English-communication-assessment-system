@@ -112,8 +112,8 @@ const FeedbackPage = () => {
   // Calculate overall statistics and performance percentages
   const overallStats = assessmentData.feedback.reduce((acc, questionFeedback) => {
     if (questionFeedback) {
-      acc.totalGrammarErrors += questionFeedback.grammar.error_count;
-      acc.totalPronunciationErrors += questionFeedback.pronunciation.error_count;
+      acc.totalGrammarErrors += questionFeedback.grammar?.error_count;
+      acc.totalPronunciationErrors += questionFeedback.pronunciation?.error_count;
       if (questionFeedback.fluency) {
         acc.totalFluencyScore += formatScore(questionFeedback.fluency.fluency_score);
         acc.totalFillerWords += questionFeedback.fluency.filler_word_count;
@@ -129,10 +129,12 @@ const FeedbackPage = () => {
         acc.totalCorrectnessScore += formatScore(questionFeedback.correctness.score);
         acc.correctnessCount += 1;
       }
+
       if (questionFeedback.pause_count !== undefined) {
         acc.totalPauses += questionFeedback.pause_count;
         acc.pauseCount += 1;
       }
+
     }
     return acc;
   }, { 
@@ -154,8 +156,8 @@ const FeedbackPage = () => {
   const totalQuestions = assessmentData.questions.length;
   
   // Calculate performance percentages
-  const grammarPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalGrammarErrors / totalQuestions * 20)));
-  const pronunciationPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalPronunciationErrors / totalQuestions * 20)));
+  const grammarPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalGrammarErrors / totalQuestions * 10)));
+  const pronunciationPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalPronunciationErrors / totalQuestions * 5)));
   const fluencyPerformance = overallStats.fluencyCount > 0 
     ? formatScore(overallStats.totalFluencyScore / overallStats.fluencyCount)
     : 100;

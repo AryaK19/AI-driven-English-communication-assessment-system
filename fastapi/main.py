@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Body, HTTPException
+from fastapi import FastAPI, UploadFile, File, Body, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from routers import users
 from config.database import init_db
@@ -39,11 +39,11 @@ async def read_root() -> dict:
     return {"message": "Welcome to your new project!"}
 
 @app.post("/process-audio") 
-async def process_audio(file: UploadFile = File(...)):
+async def process_audio(file: UploadFile = File(...), language: str = Form(default="English")):
     try:
         # Create a temporary directory if it doesn't exist
 
-
+       
         temp_dir = "temp_audio"
         os.makedirs(temp_dir, exist_ok=True)
         # Save the uploaded file temporarily
@@ -59,7 +59,7 @@ async def process_audio(file: UploadFile = File(...)):
             buffer.write(contents)
         
         # Process the audio file (now includes fluency analysis)
-        result = await process_audio_file(temp_file_path)
+        result = await process_audio_file(temp_file_path, language)
         
         # Clean up the temporary file
         # os.remove(temp_file_path)
@@ -75,7 +75,7 @@ async def process_audio(file: UploadFile = File(...)):
 async def analyze_text(text_data: Dict = Body(...)):
     try:
         text = text_data.get("text", "")
-        question = text_data.get("questionText", "")
+        question = text_data.get("question", "")
 
         logger.info(f"Analyzing text: {question} - {text}")
 
@@ -93,7 +93,7 @@ async def analyze_text(text_data: Dict = Body(...)):
         
         temp_file_manager.temp_file_path = ""
 
-        logger.info(f"Feedback: {feedback}")
+        # logger.info(f"Feedback: {feedback}")
 
         return feedback
         
