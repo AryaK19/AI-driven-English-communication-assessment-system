@@ -149,7 +149,7 @@ const OverallPerformance = ({
               {getScoreGrade(calculatedOverallScore)}
             </div>
             <p className="text-sm text-gray-600">
-              Based on Grammar (25%), Pronunciation (20%), Fluency (20%), Speech Pauses (15%), and Answer Correctness (20%)
+              Based on Grammar (20%), Pronunciation (15%), Fluency (15%), Speech Pauses (10%), and Answer Correctness (40%)
             </p>
           </div>
         </motion.div>

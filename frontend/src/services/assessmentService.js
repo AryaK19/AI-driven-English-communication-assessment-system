@@ -15,6 +15,9 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
 //     onProgressUpdate(((i + 1) / videoUrls.length) * 100);
 //   }
 
+
+
+
   const assessmentToSave = {
     ...assessmentData,
     videoUrls: uploadedUrls,
