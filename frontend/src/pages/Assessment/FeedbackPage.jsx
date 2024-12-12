@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getIdealAnswer } from '../../services/api';
 import OverallPerformance from '../../components/Feedback/OverallPerformance';
 import DetailedFeedback from '../../components/Feedback/DetailedFeedback/DetailedFeedback';
 import { saveAssessment, deleteAssessment } from '../../services/assessmentService';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 import { 
   calculateOverallStats, 
@@ -19,15 +21,16 @@ const FeedbackPage = () => {
   const [showDetailedFeedback, setShowDetailedFeedback] = useState(false);
   const [idealAnswers, setIdealAnswers] = useState({});
   const [loadingIdealAnswer, setLoadingIdealAnswer] = useState({});
-  const [expandedQuestion, setExpandedQuestion] = useState(null);
+  const [expandedQuestions, setExpandedQuestions] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  
+  const contentRef = useRef(null);
 
-  // Check if we're coming from OverallReport using the new URL pattern
   const isFromOverallReport = location.pathname.includes('/dashboard/reports/');
 
-  // Helper function to handle NaN values
   const formatScore = (score) => {
     if (score === undefined || isNaN(score)) return 0;
     return score;
@@ -35,7 +38,6 @@ const FeedbackPage = () => {
 
   useEffect(() => {
     const storedData = localStorage.getItem('assessmentFeedback');
-
     console.log("Stored data:", storedData);
     if (storedData) {
       setAssessmentData(JSON.parse(storedData));
@@ -51,7 +53,6 @@ const FeedbackPage = () => {
       try {
         parsedData = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
       } catch (e) {
-        console.error('Error parsing ideal answer response try again:', e);
         parsedData = {
           ideal_answer: 'Error parsing response try again...',
           user_strengths: 'Unable to analyze try again...',
@@ -104,8 +105,7 @@ const FeedbackPage = () => {
   const handleDeleteAssessment = async () => {
     try {
       setIsDeleting(true);
-      // Extract assessment ID from the new URL pattern
-      const assessmentId = location.pathname.split('/')[3]; // Get ID from /dashboard/reports/:id/feedback
+      const assessmentId = location.pathname.split('/')[3];
       await deleteAssessment(assessmentId);
       alert("Assessment deleted successfully!");
       navigate('/dashboard/reports'); 
@@ -114,6 +114,79 @@ const FeedbackPage = () => {
       alert(`Failed to delete assessment: ${error.message}`);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!assessmentData?.questions) {
+      alert('Assessment data is not fully loaded. Please try again.');
+      return;
+    }
+
+    try {
+      setIsGeneratingPdf(true);
+
+      const previousDetailedFeedback = showDetailedFeedback;
+      const previousExpandedQuestions = [...expandedQuestions];
+
+      setShowDetailedFeedback(true);
+      const allQuestionIndexes = assessmentData.questions.map((_, index) => index);
+      setExpandedQuestions(allQuestionIndexes);
+
+      const questionPromises = assessmentData.questions.map((question, index) => {
+        const feedback = assessmentData.feedback[index];
+        if (!idealAnswers[index] && feedback && feedback.text) {
+          return handleGetIdealAnswer(question.text, feedback.text, index);
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all(questionPromises.filter(Boolean));
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const content = contentRef.current;
+      if (!content) {
+        throw new Error('Content element not found');
+      }
+
+      const canvas = await html2canvas(content, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: content.scrollWidth,
+        windowHeight: content.scrollHeight,
+        onclone: (clonedDoc) => {
+          const clonedContent = clonedDoc.querySelector('[data-pdf-content]');
+          if (clonedContent) {
+            clonedContent.style.height = 'auto';
+            clonedContent.style.overflow = 'visible';
+            const questions = clonedDoc.querySelectorAll('[data-question-content]');
+            questions.forEach(question => {
+              question.style.height = 'auto';
+              question.style.opacity = '1';
+              question.style.overflow = 'visible';
+            });
+          }
+        }
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+      pdf.save('assessment-feedback.pdf');
+
+      setShowDetailedFeedback(previousDetailedFeedback);
+      setExpandedQuestions(previousExpandedQuestions);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
@@ -137,7 +210,6 @@ const FeedbackPage = () => {
     );
   }
 
-
   const totalQuestions = assessmentData.questions.length;
   const overallStats = calculateOverallStats(assessmentData.feedback, totalQuestions);
   const performanceScores = calculatePerformanceScores(overallStats, totalQuestions);
@@ -152,124 +224,77 @@ const FeedbackPage = () => {
     correctnessPerformance
   } = performanceScores;
 
-  // Calculate overall statistics and performance percentages
-  // const overallStats = assessmentData.feedback.reduce((acc, questionFeedback) => {
-  //   if (questionFeedback) {
-  //     acc.totalGrammarErrors += questionFeedback.grammar?.error_count;
-  //     acc.totalPronunciationErrors += questionFeedback.pronunciation?.error_count;
-  //     if (questionFeedback.fluency) {
-  //       acc.totalFluencyScore += formatScore(questionFeedback.fluency.fluency_score);
-  //       acc.totalFillerWords += questionFeedback.fluency.filler_word_count;
-  //       acc.fluencyCount += 1;
-  //     }
-  //     if (questionFeedback.vocabulary) {
-  //       acc.totalAdvancedWords += questionFeedback.vocabulary.total_advanced_words;
-  //     }
-  //     if (questionFeedback.correctness) {
-  //       acc.totalRelevanceScore += formatScore(questionFeedback.correctness.relevance_score);
-  //       acc.totalQualityScore += formatScore(questionFeedback.correctness.quality_score);
-  //       acc.totalCorrectnessScore += formatScore(questionFeedback.correctness.score);
-  //       acc.correctnessCount += 1;
-  //     }
-
-  //     if (questionFeedback.pause_count !== undefined) {
-  //       acc.totalPauses += questionFeedback.pause_count;
-  //       acc.pauseCount += 1;
-  //     }
-  //   }
-  //   return acc;
-  // }, { 
-  //   totalGrammarErrors: 0, 
-  //   totalPronunciationErrors: 0,
-  //   totalFluencyScore: 0,
-  //   totalFillerWords: 0,
-  //   fluencyCount: 0,
-  //   totalAdvancedWords: 0,
-  //   totalRelevanceScore: 0,
-  //   totalQualityScore: 0,
-  //   totalCorrectnessScore: 0,
-  //   correctnessCount: 0,
-  //   totalPauses: 0,
-  //   pauseCount: 0,
-  //   totalQuestions: assessmentData.questions.length
-  // });
-
-  // const totalQuestions = assessmentData.questions.length;
-  
-  // // Calculate performance percentages
-  // const grammarPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalGrammarErrors / totalQuestions * 10)));
-  // const pronunciationPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalPronunciationErrors / totalQuestions * 5)));
-  // const fluencyPerformance = overallStats.fluencyCount > 0 
-  //   ? formatScore(overallStats.totalFluencyScore / overallStats.fluencyCount)
-  //   : 100;
-  // const pausePerformance = overallStats.pauseCount > 0
-  //   ? Math.max(0, Math.min(100, 100 - (overallStats.totalPauses / overallStats.pauseCount * 10)))
-  //   : 100;
-
-  // const correctnessPerformance = overallStats.correctnessCount > 0
-  //   ? formatScore(overallStats.totalCorrectnessScore / overallStats.correctnessCount)
-  //   : 0;
-
-  // const baseScore = (
-  //   (grammarPerformance * 0.3) +
-  //   (pronunciationPerformance * 0.25) +
-  //   (fluencyPerformance * 0.25) +
-  //   (pausePerformance * 0.2)
-  // );
-
-  // const correctnessImpact = 0.3 + (correctnessPerformance / 100 * 0.8);
-  // const overallScore = Math.round(baseScore * correctnessImpact);
-
   return (
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="container mx-auto p-6"
     >
-      <motion.h1 
-        initial={{ y: -20 }}
-        animate={{ y: 0 }}
-        className="text-3xl font-bold mb-6"
-      >
-        Assessment Feedback
-      </motion.h1>
-      
-      <OverallPerformance
-        overallScore={overallScore}
-        overallStats={overallStats}
-        grammarPerformance={grammarPerformance}
-        pronunciationPerformance={pronunciationPerformance}
-        fluencyPerformance={fluencyPerformance}
-        correctnessPerformance={correctnessPerformance}
-        pausePerformance={pausePerformance}
-        showDetailedFeedback={showDetailedFeedback}
-        setShowDetailedFeedback={setShowDetailedFeedback}
-      />
+      <div ref={contentRef} data-pdf-content>
+        <motion.h1 
+          initial={{ y: -20 }}
+          animate={{ y: 0 }}
+          className="text-3xl font-bold mb-6"
+        >
+          Assessment Feedback
+        </motion.h1>
+        
+        <OverallPerformance
+          overallScore={overallScore}
+          overallStats={overallStats}
+          grammarPerformance={grammarPerformance}
+          pronunciationPerformance={pronunciationPerformance}
+          fluencyPerformance={fluencyPerformance}
+          correctnessPerformance={correctnessPerformance}
+          pausePerformance={pausePerformance}
+          showDetailedFeedback={showDetailedFeedback}
+          setShowDetailedFeedback={setShowDetailedFeedback}
+        />
 
-      <DetailedFeedback 
-        showDetailedFeedback={showDetailedFeedback}
-        assessmentData={assessmentData}
-        expandedQuestion={expandedQuestion}
-        setExpandedQuestion={setExpandedQuestion}
-        handleGetIdealAnswer={handleGetIdealAnswer}
-        loadingIdealAnswer={loadingIdealAnswer}
-        idealAnswers={idealAnswers}
-      />
+        <DetailedFeedback 
+          showDetailedFeedback={showDetailedFeedback}
+          assessmentData={assessmentData}
+          expandedQuestion={expandedQuestions}
+          setExpandedQuestion={setExpandedQuestions}
+          handleGetIdealAnswer={handleGetIdealAnswer}
+          loadingIdealAnswer={loadingIdealAnswer}
+          idealAnswers={idealAnswers}
+        />
+      </div>
 
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-8 flex flex-col items-center gap-4"
+        className="mt-8 flex flex-row flex-wrap justify-center items-center gap-4 px-4"
       >
+        <motion.button
+          whileHover={{ scale: 1.02, boxShadow: '0 4px 15px rgba(124, 58, 237, 0.25)' }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleDownloadPdf}
+          disabled={isGeneratingPdf}
+          className={`min-w-[160px] px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg shadow-md transition-all duration-300 text-sm flex items-center justify-center gap-2 ${isGeneratingPdf ? 'opacity-50 cursor-not-allowed' : 'hover:from-purple-700 hover:to-purple-800'}`}
+        >
+          {isGeneratingPdf ? (
+            <>
+              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generating PDF...
+            </>
+          ) : (
+            'Download PDF'
+          )}
+        </motion.button>
+
         {isFromOverallReport ? (
-          // Show Delete button only when from OverallReport
           <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02, boxShadow: '0 4px 15px rgba(239, 68, 68, 0.25)' }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleDeleteAssessment}
             disabled={isDeleting}
-            className={`px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 text-sm flex items-center gap-2 ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`min-w-[160px] px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg shadow-md transition-all duration-300 text-sm flex items-center justify-center gap-2 ${isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:from-red-700 hover:to-red-800'}`}
           >
             {isDeleting ? (
               <>
@@ -277,21 +302,20 @@ const FeedbackPage = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Deleting Assessment...
+                Deleting...
               </>
             ) : (
               'Delete Assessment'
             )}
           </motion.button>
         ) : (
-          // Show Save button only when not from OverallReport
           <>
             <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02, boxShadow: '0 4px 15px rgba(16, 185, 129, 0.25)' }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleSaveAssessment}
               disabled={isSaving}
-              className={`px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300 text-sm flex items-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`min-w-[160px] px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg shadow-md transition-all duration-300 text-sm flex items-center justify-center gap-2 ${isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:from-green-700 hover:to-green-800'}`}
             >
               {isSaving ? (
                 <>
@@ -299,7 +323,7 @@ const FeedbackPage = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Saving Assessment...
+                  Saving...
                 </>
               ) : (
                 'Save Assessment'
@@ -318,10 +342,10 @@ const FeedbackPage = () => {
         )}
 
         <motion.button 
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02, boxShadow: '0 4px 15px rgba(59, 130, 246, 0.25)' }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => navigate('/dashboard')}
-          className="px-6 py-2.5 bg-brand-blue text-white rounded-lg hover:opacity-90 transition-all duration-300 text-sm"
+          className="min-w-[160px] px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow-md transition-all duration-300 text-sm hover:from-blue-700 hover:to-blue-800"
         >
           Return to Dashboard
         </motion.button>

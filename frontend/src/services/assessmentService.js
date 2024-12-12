@@ -18,11 +18,26 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
     throw new Error("User email not found in localStorage");
   }
 
-  const dataToStore = JSON.stringify(assessmentData);
+  // Upload all videos to S3 first
+  for (let i = 0; i < videoUrls.length; i++) {
+    const s3Data = await uploadVideo(videoUrls[i], i);
+    uploadedUrls.push(s3Data.url);
+    onProgressUpdate(((i + 1) / videoUrls.length) * 100);
+  }
 
+  // Replace original video URLs with S3 URLs in the feedback array
+  const updatedFeedback = assessmentData.feedback.map((feedback, index) => ({
+    ...feedback,
+    videoUrl: uploadedUrls[index] || feedback.videoUrl // fallback to original URL if upload failed
+  }));
 
+  // Update assessment data with new URLs
+  const updatedAssessmentData = {
+    ...assessmentData,
+    feedback: updatedFeedback
+  };
 
-  
+  const dataToStore = JSON.stringify(updatedAssessmentData);
 
   const response = await axios.post(
     `${API_BASE_URL}/assessments/save`,
@@ -38,7 +53,7 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
   );
 
   return {
-    ...assessmentData,
+    ...updatedAssessmentData,
     videoUrls: uploadedUrls,
     savedAt: new Date().toISOString(),
   };
