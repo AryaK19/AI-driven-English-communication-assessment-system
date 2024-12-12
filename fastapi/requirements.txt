@@ -12,3 +12,4 @@ pathlib
 groq
 scipy
 librosa
+numpy
