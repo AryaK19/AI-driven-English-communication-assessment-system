@@ -6,6 +6,12 @@ import OverallPerformance from '../../components/Feedback/OverallPerformance';
 import DetailedFeedback from '../../components/Feedback/DetailedFeedback/DetailedFeedback';
 import { saveAssessment, deleteAssessment } from '../../services/assessmentService';
 
+import { 
+  calculateOverallStats, 
+  calculatePerformanceScores, 
+  calculateOverallScore 
+} from '../../utils/scoreCalculations';
+
 const FeedbackPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,6 +35,7 @@ const FeedbackPage = () => {
 
   useEffect(() => {
     const storedData = localStorage.getItem('assessmentFeedback');
+
     console.log("Stored data:", storedData);
     if (storedData) {
       setAssessmentData(JSON.parse(storedData));
@@ -130,73 +137,88 @@ const FeedbackPage = () => {
     );
   }
 
-  // Calculate overall statistics and performance percentages
-  const overallStats = assessmentData.feedback.reduce((acc, questionFeedback) => {
-    if (questionFeedback) {
-      acc.totalGrammarErrors += questionFeedback.grammar?.error_count;
-      acc.totalPronunciationErrors += questionFeedback.pronunciation?.error_count;
-      if (questionFeedback.fluency) {
-        acc.totalFluencyScore += formatScore(questionFeedback.fluency.fluency_score);
-        acc.totalFillerWords += questionFeedback.fluency.filler_word_count;
-        acc.fluencyCount += 1;
-      }
-      if (questionFeedback.vocabulary) {
-        acc.totalAdvancedWords += questionFeedback.vocabulary.total_advanced_words;
-      }
-      if (questionFeedback.correctness) {
-        acc.totalRelevanceScore += formatScore(questionFeedback.correctness.relevance_score);
-        acc.totalQualityScore += formatScore(questionFeedback.correctness.quality_score);
-        acc.totalCorrectnessScore += formatScore(questionFeedback.correctness.score);
-        acc.correctnessCount += 1;
-      }
-
-      if (questionFeedback.pause_count !== undefined) {
-        acc.totalPauses += questionFeedback.pause_count;
-        acc.pauseCount += 1;
-      }
-    }
-    return acc;
-  }, { 
-    totalGrammarErrors: 0, 
-    totalPronunciationErrors: 0,
-    totalFluencyScore: 0,
-    totalFillerWords: 0,
-    fluencyCount: 0,
-    totalAdvancedWords: 0,
-    totalRelevanceScore: 0,
-    totalQualityScore: 0,
-    totalCorrectnessScore: 0,
-    correctnessCount: 0,
-    totalPauses: 0,
-    pauseCount: 0,
-    totalQuestions: assessmentData.questions.length
-  });
 
   const totalQuestions = assessmentData.questions.length;
+  const overallStats = calculateOverallStats(assessmentData.feedback, totalQuestions);
+  const performanceScores = calculatePerformanceScores(overallStats, totalQuestions);
+  const overallScore = calculateOverallScore(performanceScores);
+  console.log("Overall stats:", overallScore);
+
+  const {
+    grammarPerformance,
+    pronunciationPerformance,
+    fluencyPerformance,
+    pausePerformance,
+    correctnessPerformance
+  } = performanceScores;
+
+  // Calculate overall statistics and performance percentages
+  // const overallStats = assessmentData.feedback.reduce((acc, questionFeedback) => {
+  //   if (questionFeedback) {
+  //     acc.totalGrammarErrors += questionFeedback.grammar?.error_count;
+  //     acc.totalPronunciationErrors += questionFeedback.pronunciation?.error_count;
+  //     if (questionFeedback.fluency) {
+  //       acc.totalFluencyScore += formatScore(questionFeedback.fluency.fluency_score);
+  //       acc.totalFillerWords += questionFeedback.fluency.filler_word_count;
+  //       acc.fluencyCount += 1;
+  //     }
+  //     if (questionFeedback.vocabulary) {
+  //       acc.totalAdvancedWords += questionFeedback.vocabulary.total_advanced_words;
+  //     }
+  //     if (questionFeedback.correctness) {
+  //       acc.totalRelevanceScore += formatScore(questionFeedback.correctness.relevance_score);
+  //       acc.totalQualityScore += formatScore(questionFeedback.correctness.quality_score);
+  //       acc.totalCorrectnessScore += formatScore(questionFeedback.correctness.score);
+  //       acc.correctnessCount += 1;
+  //     }
+
+  //     if (questionFeedback.pause_count !== undefined) {
+  //       acc.totalPauses += questionFeedback.pause_count;
+  //       acc.pauseCount += 1;
+  //     }
+  //   }
+  //   return acc;
+  // }, { 
+  //   totalGrammarErrors: 0, 
+  //   totalPronunciationErrors: 0,
+  //   totalFluencyScore: 0,
+  //   totalFillerWords: 0,
+  //   fluencyCount: 0,
+  //   totalAdvancedWords: 0,
+  //   totalRelevanceScore: 0,
+  //   totalQualityScore: 0,
+  //   totalCorrectnessScore: 0,
+  //   correctnessCount: 0,
+  //   totalPauses: 0,
+  //   pauseCount: 0,
+  //   totalQuestions: assessmentData.questions.length
+  // });
+
+  // const totalQuestions = assessmentData.questions.length;
   
-  // Calculate performance percentages
-  const grammarPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalGrammarErrors / totalQuestions * 10)));
-  const pronunciationPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalPronunciationErrors / totalQuestions * 5)));
-  const fluencyPerformance = overallStats.fluencyCount > 0 
-    ? formatScore(overallStats.totalFluencyScore / overallStats.fluencyCount)
-    : 100;
-  const pausePerformance = overallStats.pauseCount > 0
-    ? Math.max(0, Math.min(100, 100 - (overallStats.totalPauses / overallStats.pauseCount * 10)))
-    : 100;
+  // // Calculate performance percentages
+  // const grammarPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalGrammarErrors / totalQuestions * 10)));
+  // const pronunciationPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalPronunciationErrors / totalQuestions * 5)));
+  // const fluencyPerformance = overallStats.fluencyCount > 0 
+  //   ? formatScore(overallStats.totalFluencyScore / overallStats.fluencyCount)
+  //   : 100;
+  // const pausePerformance = overallStats.pauseCount > 0
+  //   ? Math.max(0, Math.min(100, 100 - (overallStats.totalPauses / overallStats.pauseCount * 10)))
+  //   : 100;
 
-  const correctnessPerformance = overallStats.correctnessCount > 0
-    ? formatScore(overallStats.totalCorrectnessScore / overallStats.correctnessCount)
-    : 0;
+  // const correctnessPerformance = overallStats.correctnessCount > 0
+  //   ? formatScore(overallStats.totalCorrectnessScore / overallStats.correctnessCount)
+  //   : 0;
 
-  const baseScore = (
-    (grammarPerformance * 0.3) +
-    (pronunciationPerformance * 0.25) +
-    (fluencyPerformance * 0.25) +
-    (pausePerformance * 0.2)
-  );
+  // const baseScore = (
+  //   (grammarPerformance * 0.3) +
+  //   (pronunciationPerformance * 0.25) +
+  //   (fluencyPerformance * 0.25) +
+  //   (pausePerformance * 0.2)
+  // );
 
-  const correctnessImpact = 0.3 + (correctnessPerformance / 100 * 0.1);
-  const overallScore = Math.round(baseScore * correctnessImpact);
+  // const correctnessImpact = 0.3 + (correctnessPerformance / 100 * 0.8);
+  // const overallScore = Math.round(baseScore * correctnessImpact);
 
   return (
     <motion.div 
