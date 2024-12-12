@@ -8,7 +8,7 @@
     "frontend": "cd frontend && npm i && npm run dev",
     "backend": "cd backend && npm i && nodemon app.js",
     "fastapi": "cd fastapi && .\\venv\\Scripts\\activate && uvicorn main:app --reload --port 8000",
-    "fastapiv": "cd fastapi && conda activate sea && uvicorn main:app --reload --port 8000  --log-level info",
+    "fastapiv": "cd fastapi && conda activate sea && uvicorn main:app --reload --port 8000",
     "dev": "concurrently -k  \"npm run backend\" \"npm run frontend\" \"npm run fastapi\"",
     "devv": "concurrently -k  \"npm run backend\" \"npm run frontend\" \"npm run fastapiv\""
   },

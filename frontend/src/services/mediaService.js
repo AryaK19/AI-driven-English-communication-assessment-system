@@ -1,4 +1,4 @@
-export const sendMediaToServer = async (mediaBlob, questionIndex) => {
+export const sendMediaToServer = async (mediaBlob, questionIndex, questionText) => {
   if (!mediaBlob || mediaBlob.size === 0) {
     throw new Error("No recording data available");
   }
@@ -10,6 +10,7 @@ export const sendMediaToServer = async (mediaBlob, questionIndex) => {
     `question_${questionIndex}.mp4`
   );
   formData.append("questionIndex", questionIndex);
+  
 
   const response = await fetch("http://localhost:8000/process-audio", {
     method: "POST",
@@ -24,7 +25,7 @@ export const sendMediaToServer = async (mediaBlob, questionIndex) => {
   const data = await response.json();
   
   if (data.status === "success" && data.text) {
-    const feedbackData = await getFeedbackAnalysis(data.text);
+    const feedbackData = await getFeedbackAnalysis(data.text, questionText);
     return {
       transcribedText: data.text,
       feedback: feedbackData
@@ -34,13 +35,17 @@ export const sendMediaToServer = async (mediaBlob, questionIndex) => {
   }
 };
 
-export const getFeedbackAnalysis = async (text) => {
+export const getFeedbackAnalysis = async (text, questionText) => {
+  // console.log("text", text, "questionText", questionText);
   const response = await fetch("http://localhost:8000/analyze-text", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ 
+      text,
+      questionText
+    }),
   });
 
   if (!response.ok) {

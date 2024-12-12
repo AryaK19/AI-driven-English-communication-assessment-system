@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 from dotenv import load_dotenv
 from .check_correctness import check_answer_correctness
 from .vocab_check import analyze_vocabulary
+from .get_pause import get_pause_count
 
 # Load environment variables
 load_dotenv()
@@ -140,6 +141,7 @@ class FeedbackProcessor:
                     }
                 ],
                 model="llama-3.2-3b-preview",
+                temperature=0.1,
             )
             
             analysis = response.choices[0].message.content
@@ -168,6 +170,7 @@ class FeedbackProcessor:
                     }
                 ],
                 model="llama-3.2-3b-preview",
+                temperature=0.1,
             )
             
             analysis = response.choices[0].message.content
@@ -178,6 +181,20 @@ class FeedbackProcessor:
                 "error_count": 0,
                 "errors": []
             }
+        
+    async def analyze_pauses(self, text: str, tempFileName: str) -> int:
+        """
+        Analyze text for pauses using the pause count from the audio file.
+        """
+        try:
+            # Get the pause count from the audio file
+            pause_count = get_pause_count(tempFileName)
+            return pause_count
+        except Exception as e:
+            print(f"Error in analyze_pauses: {str(e)}")
+            return 0
+        
+
 
     def _parse_grammar_response(self, response: str) -> Dict:
         """
@@ -214,8 +231,12 @@ class FeedbackProcessor:
                 "error_count": 0,
                 "errors": []
             }
+        
 
-    async def analyze_text(self, text: str, question: Optional[str] = None) -> Dict:
+
+
+
+    async def analyze_text(self, text: str, question: Optional[str] = None, tempFileName: str = '') -> Dict:
         """
         Analyze text for grammar, pronunciation, vocabulary, fluency and answer correctness.
         """
@@ -223,21 +244,23 @@ class FeedbackProcessor:
         pronunciation_analysis = await self.analyze_pronunciation(text)
         vocabulary_analysis = analyze_vocabulary(text)
         fluency_analysis = self.analyze_fluency(text)
+        pause_analysis = await self.analyze_pauses(text,tempFileName)
+        correctness_analysis = check_answer_correctness(question, text)
+    
         
         # Add answer correctness analysis if question is provided
-        correctness_analysis = None
-        if question:
-            correctness_analysis = check_answer_correctness(question, text)
 
         feedback = {
             "grammar": grammar_analysis,
             "pronunciation": pronunciation_analysis,
             "vocabulary": vocabulary_analysis,
             "fluency": fluency_analysis,
+            "pause_count": pause_analysis["total_pauses"],
+            "correctness": correctness_analysis,
             "text": text
         }
 
-        if correctness_analysis:
-            feedback["correctness"] = correctness_analysis
+
+        
 
         return feedback

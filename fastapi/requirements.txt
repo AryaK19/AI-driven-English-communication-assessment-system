@@ -10,3 +10,5 @@ python-multipart
 email-validator
 pathlib
 groq
+scipy
+librosa

@@ -23,6 +23,8 @@ import { Formik } from "formik";
 
 // project import
 import { AnimateButton } from "../../../components";
+import { auth } from "../../../../firebase/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 // assets
 import EyeOutlined from "@ant-design/icons/EyeOutlined";
@@ -46,14 +48,35 @@ export default function AuthLogin({ isDemo = false }) {
   const handleFormSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
       const { email, password } = values;
-      // Call the API function for login
-      await loginUser(email, password);
-      console.log("Login successful");
+
+      // Use Firebase auth to log in
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if (result.user) {
+        const { displayName, email, uid } = result.user;
+
+        // Create a payload for the user
+        const userPayload = {
+          username: displayName,
+          email: email,
+          token: uid, // Using Firebase UID as the token here for demonstration
+        };
+      }
+
+      // Store the user data in localStorage
+      localStorage.setItem("currUser", JSON.stringify(userPayload));
+      console.log("Login successful", userPayload);
+
       // Redirect to dashboard or any protected page after login
       navigate("/dashboard");
     } catch (error) {
-      // Handle errors returned from the API
-      setErrors({ submit: error.response?.data?.message || "Login failed" });
+      // Handle errors returned by Firebase
+      const errorMessage = error.message || "Login failed";
+      console.error("Login error:", errorMessage);
+      setErrors({ submit: errorMessage });
     } finally {
       setSubmitting(false); // Stop the loading state
     }

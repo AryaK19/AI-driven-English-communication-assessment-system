@@ -16,6 +16,13 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+
+class TempFileManager:
+    def __init__(self):
+        self.temp_file_path = ""
+
+temp_file_manager = TempFileManager()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -35,11 +42,18 @@ async def read_root() -> dict:
 async def process_audio(file: UploadFile = File(...)):
     try:
         # Create a temporary directory if it doesn't exist
+
+
         temp_dir = "temp_audio"
         os.makedirs(temp_dir, exist_ok=True)
-        
         # Save the uploaded file temporarily
         temp_file_path = os.path.join(temp_dir, file.filename)
+
+        logger.info(f"Saving audio file to {temp_file_path}")
+
+        
+        temp_file_manager.temp_file_path = temp_file_path
+
         with open(temp_file_path, "wb") as buffer:
             contents = await file.read()
             buffer.write(contents)
@@ -48,7 +62,7 @@ async def process_audio(file: UploadFile = File(...)):
         result = await process_audio_file(temp_file_path)
         
         # Clean up the temporary file
-        os.remove(temp_file_path)
+        # os.remove(temp_file_path)
         
         # Return the processing result (includes transcription and fluency data)
         return result
@@ -61,11 +75,26 @@ async def process_audio(file: UploadFile = File(...)):
 async def analyze_text(text_data: Dict = Body(...)):
     try:
         text = text_data.get("text", "")
+        question = text_data.get("questionText", "")
+
+        logger.info(f"Analyzing text: {question} - {text}")
+
         if not text:
             return {"error": "No text provided"}
+        if not question:
+            return {"error": "No Question provided"}
             
         # Process the text using our feedback processor
-        feedback = await feedback_processor.analyze_text(text)
+        feedback = await feedback_processor.analyze_text(text,tempFileName=temp_file_manager.temp_file_path,question=question)
+
+        
+
+        os.remove(temp_file_manager.temp_file_path)
+        
+        temp_file_manager.temp_file_path = ""
+
+        logger.info(f"Feedback: {feedback}")
+
         return feedback
         
     except Exception as e:

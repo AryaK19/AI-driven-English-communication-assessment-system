@@ -4,66 +4,74 @@ import Stack from "@mui/material/Stack";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../../../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import { saveOrRetrieveUser } from "../../../services/userLogin";
 
 // assets
 import Google from "../../../assets/icons/google.svg";
-import Twitter from "../../../assets/icons/twitter.svg";
-import Facebook from "../../../assets/icons/facebook.svg";
-import { fromPairs } from "lodash";
 
 // ==============================|| FIREBASE - SOCIAL BUTTON ||============================== //
 
 export default function FirebaseSocial() {
   const navigate = useNavigate();
+
   const googleHandler = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      // Handle the result here (e.g., save user info, redirect, etc.)
-      navigate("/dashboard");
-      console.log(result.user);
+
+      if (result.user) {
+        const { displayName, email, uid } = result.user;
+
+        // Create a payload for the user
+        const userPayload = {
+          username: displayName,
+          email: email,
+          token: uid, // Using Firebase UID as the token here for demonstration
+        };
+
+        // Save or retrieve the user using the API function
+        const user = await saveOrRetrieveUser(userPayload);
+
+        if (user) {
+          console.log("User successfully stored/retrieved:", user);
+          // Store token or perform additional logic as needed
+          localStorage.setItem("token", user.token);
+          localStorage.setItem("currUser", JSON.stringify(userPayload));
+          navigate("/dashboard");
+        }
+      }
     } catch (error) {
       console.error("Error during Google sign-in:", error);
     }
-  };
-
-  const twitterHandler = async () => {
-    // login || singup
-  };
-
-  const facebookHandler = async () => {
-    // login || singup
   };
 
   return (
     <Stack
       direction="row"
       spacing={{ xs: 1, sm: 2 }}
-      justifyContent={{ xs: "space-around", sm: "space-between" }}
+      justifyContent="center"
       sx={{
-        "& .MuiButton-startIcon": {
-          mr: { xs: 0, sm: 1 },
-          ml: { xs: 0, sm: -0.5 },
-        },
+        width: "100%",
       }}
     >
       <Button
         variant="outlined"
-        color="secondary"
         startIcon={<img src={Google} alt="Google" />}
         onClick={googleHandler}
-      ></Button>
-      <Button
-        variant="outlined"
-        color="secondary"
-        startIcon={<img src={Twitter} alt="Twitter" />}
-        onClick={twitterHandler}
-      ></Button>
-      <Button
-        variant="outlined"
-        color="secondary"
-        startIcon={<img src={Facebook} alt="Facebook" />}
-        onClick={facebookHandler}
-      ></Button>
+        sx={{
+          width: "100%", // Make the button span the full width
+          height: "56px", // Set a larger height for the button
+          fontSize: "16px", // Larger font size
+          textTransform: "none", // Prevent uppercase transformation
+          backgroundColor: "#ffffff", // White background
+          color: "#757575", // Grey text and icon color
+          border: "1px solid #cccccc", // Light grey border
+          "&:hover": {
+            backgroundColor: "#f7f7f7", // Slightly darker white on hover
+          },
+        }}
+      >
+        Sign in with Google
+      </Button>
     </Stack>
   );
 }

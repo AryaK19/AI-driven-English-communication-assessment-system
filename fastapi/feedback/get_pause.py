@@ -1,19 +1,12 @@
+import os 
+import logging
 import librosa
 import numpy as np
-import soundfile as sf
+from scipy.signal import butter, filtfilt
 
-def detect_pauses(audio_path, threshold_seconds=1, amplitude_threshold=0.01):
-    """
-    Detect pauses in an audio file.
-    
-    Parameters:
-    - audio_path (str): Path to the input audio file
-    - threshold_seconds (float): Minimum duration to count as a pause (default: 0.5 seconds)
-    - amplitude_threshold (float): Amplitude threshold to consider as silence (default: 0.01)
-    
-    Returns:
-    - dict: Pause detection results
-    """
+
+
+def get_pause_count(audio_path, threshold_seconds=1, amplitude_threshold=0.005):
     # Load the audio file
     audio, sample_rate = librosa.load(audio_path, sr=None)
     
@@ -66,32 +59,3 @@ def detect_pauses(audio_path, threshold_seconds=1, amplitude_threshold=0.01):
         'total_pause_duration': sum(pause['duration'] for pause in pauses)
     }
 
-def main():
-    # Example usage
-    audio_file_path = 'temp_audio/file.mp4'  # You can use MP4 or any audio file
-    
-    try:
-        # Detect pauses
-        pause_analysis = detect_pauses(audio_file_path)
-        
-        # Print results
-        print(f"Total number of pauses: {pause_analysis['total_pauses']}")
-        print(f"Total pause duration: {pause_analysis['total_pause_duration']:.2f} seconds")
-        
-        # Print details of each pause
-        print("\nPause Details:")
-        for i, pause in enumerate(pause_analysis['pause_details'], 1):
-            print(f"Pause {i}:")
-            print(f"  Start time: {pause['start']:.2f} seconds")
-            print(f"  End time: {pause['end']:.2f} seconds")
-            print(f"  Duration: {pause['duration']:.2f} seconds")
-    
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-if __name__ == "__main__":
-    main()
-
-# Dependencies:
-# Install required libraries using pip:
-# pip install librosa soundfile numpy

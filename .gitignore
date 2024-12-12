@@ -22,3 +22,5 @@ Thumbs.db
 
 #python
 venv
+
+backend/.env

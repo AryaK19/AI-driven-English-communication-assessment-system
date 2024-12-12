@@ -61,12 +61,22 @@ function GrammarAssessment() {
     };
   }, [navigate]);
 
-  const handleMediaUpload = async (mediaBlob) => {
+  const handleMediaUpload = async (mediaBlob, currentQuestionIndex) => {
     setIsLoading(true);
     setError(null);
+    
 
     try {
-      const result = await sendMediaToServer(mediaBlob, currentQuestionIndex);
+      // Get the current question text from questions array
+      const currentQuestionText = questions[currentQuestionIndex];
+  
+      // Send media blob along with question text and index
+      const result = await sendMediaToServer(
+        mediaBlob, 
+        currentQuestionIndex,
+        currentQuestionText
+      );
+      
       setTranscribedText(result.transcribedText);
       
       // Create a URL for the video blob
@@ -76,17 +86,18 @@ function GrammarAssessment() {
         newUrls[currentQuestionIndex] = videoUrl;
         return newUrls;
       });
-
+  
       setFeedbackData(prev => {
         const newFeedback = [...prev];
         newFeedback[currentQuestionIndex] = {
           text: result.transcribedText,
           videoUrl: videoUrl,
+          questionText: currentQuestionText, // Store question text in feedback
           ...result.feedback
         };
         return newFeedback;
       });
-
+  
       return result;
     } catch (error) {
       console.error("Upload error:", error);
@@ -137,7 +148,7 @@ function GrammarAssessment() {
         });
 
         try {
-          await handleMediaUpload(mediaBlob);
+          await handleMediaUpload(mediaBlob, currentQuestionIndex);
           setAssessmentStage("review");
         } catch (error) {
           console.error("Failed to process recording:", error);

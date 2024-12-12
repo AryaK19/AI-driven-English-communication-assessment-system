@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { auth } from "../../../../firebase/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { saveOrRetrieveUser } from "../../../services/userLogin";
 
 // material-ui
 import Button from "@mui/material/Button";
@@ -50,26 +53,44 @@ export default function AuthRegister() {
     setLevel(strengthColor(temp));
   };
 
-  const handleRegisterSubmit = async (
-    values,
-    { setSubmitting, setErrors },
-    navigate
-  ) => {
+  const handleRegisterSubmit = async (values, { setSubmitting, setErrors }) => {
     try {
       const { firstname, lastname, email, company, password } = values;
 
-      // Call the API function for registration
-      await registerUser(firstname, lastname, email, company, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-      // Redirect to the login page after successful registration
-      navigate("/login");
+      const firebaseUser = userCredential.user;
+
+      // Create the payload to save to the database
+      const userPayload = {
+        username: `${firstname} ${lastname}`,
+        email: firebaseUser.email,
+        token: firebaseUser.uid, // Using Firebase UID as token
+      };
+
+      // Call the API to save or retrieve the user in the database
+      const user = await saveOrRetrieveUser(userPayload);
+
+      console.log("User successfully registered and saved:", user);
+
+      // Store token in local storage or handle it as needed
+      localStorage.setItem("token", user.token);
+      localStorage.setItem("currUser", JSON.stringify(userPayload));
+
+      // Navigate to the dashboard after successful registration
+      navigate("/dashboard");
     } catch (error) {
-      // Handle API errors and set them in the form
+      console.error("Error during registration:", error);
+      // Handle errors and set them in the form
       setErrors({
         submit: error.response?.data?.message || "Registration failed",
       });
     } finally {
-      setSubmitting(false); // Stop loading state
+      setSubmitting(false);
     }
   };
 
