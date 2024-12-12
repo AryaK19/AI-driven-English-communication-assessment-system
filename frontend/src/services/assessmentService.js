@@ -26,9 +26,18 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
     savedAt: new Date().toISOString(),
   };
 
+  
   // Modify the video URL's in assessment with those pushed on AWS
+  const currUser = JSON.parse(localStorage.getItem("currUser"));
+  if (!currUser?.email) {
+    throw new Error("User email not found in localStorage");
+  }
 
+  
   const dataToStore = JSON.stringify(assessmentData);
+  // console.log("Assessment data ready to save:", dataToStore);
+  // console.log("Type of dataToStore:", typeof dataToStore);
+
   const response = await axios.post(
     `${API_BASE_URL}/assessments/save`,
     {
@@ -36,7 +45,8 @@ export const saveAssessment = async (assessmentData, onProgressUpdate) => {
     },
     {
       headers: {
-        "x-user-email": localStorage.getItem("currUser")?.email,
+        "x-user-email": currUser.email,
+        "Content-Type": "application/json"
       },
     }
   );

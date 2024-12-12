@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const assessmentSchema = new mongoose.Schema(
   {
     data: {
-      type: string,
+      type: String,
       required: true,
     },
     dateAndTime: {

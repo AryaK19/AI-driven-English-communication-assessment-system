@@ -16,7 +16,11 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:3000"], // Allow both Vite dev server and production
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+      "Content-Type", 
+      "Authorization", 
+      "x-user-email"  // Add custom header
+    ],
     credentials: true,
   })
 );

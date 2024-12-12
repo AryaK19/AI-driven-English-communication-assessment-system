@@ -9,6 +9,8 @@ router.post("/save", async (req, res) => {
   try {
     const { assessmentData } = req.body;
 
+    console.log("Assessment data ready to save:", assessmentData);
+
     // Get current user from request headers
     const currUserEmail = req.headers["x-user-email"];
     if (!currUserEmail) {
