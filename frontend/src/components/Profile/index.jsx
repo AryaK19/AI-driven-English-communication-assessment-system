@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 // material-ui
 import ButtonBase from "@mui/material/ButtonBase";
@@ -24,6 +24,7 @@ import ProfileTab from "./ProfileTab";
 import SettingTab from "./SettingTab";
 import MainCard from "../MainCard";
 import { logoutUser } from "../../services/logoutUser";
+import { auth } from "./../../../firebase/firebase";
 
 // assets
 import LogoutOutlined from "@ant-design/icons/LogoutOutlined";
@@ -77,11 +78,24 @@ export default function Profile() {
   };
 
   const [value, setValue] = useState(0);
+  const [profileImage, setProfileImage] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  useEffect(() => {
+    // Check the current user from Firebase
+    const currentUser = auth.currentUser;
+    if (currentUser && currentUser.photoURL) {
+      setProfileImage(currentUser.photoURL);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("Profile Image updated:", profileImage);
+  }, [profileImage]);
 
   const handleLogout = async () => {
     try {
@@ -118,7 +132,7 @@ export default function Profile() {
           alignItems="center"
           sx={{ p: 0.5 }}
         >
-          <Avatar alt="profile user" src={avatar1} size="sm" />
+          <Avatar alt="profile user" src={profileImage || avatar1} size="sm" />
           <Typography variant="subtitle1" sx={{ textTransform: "capitalize" }}>
             {JSON.parse(localStorage.getItem("currUser"))?.username || "Guest"}
           </Typography>
@@ -173,7 +187,7 @@ export default function Profile() {
                         >
                           <Avatar
                             alt="profile user"
-                            src={avatar1}
+                            src={profileImage || avatar1}
                             sx={{ width: 32, height: 32 }}
                           />
                           <Stack>
