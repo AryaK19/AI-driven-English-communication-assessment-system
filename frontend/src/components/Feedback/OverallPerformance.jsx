@@ -33,10 +33,10 @@ const OverallPerformance = ({
 
   // Calculate overall score with weighted metrics
   const calculatedOverallScore = Math.round(
-    (grammarPerformance * 0.20) +      // 25% weight for grammar
-    (pronunciationPerformance * 0.15) + // 20% weight for pronunciation
+    (grammarPerformance * 0.25) +      // 25% weight for grammar
+    (pronunciationPerformance * 0.05) + // 20% weight for pronunciation
     (fluencyPerformance * 0.15) +       // 20% weight for fluency
-    (pausePerformance * 0.10) +         // 15% weight for speech pauses
+    (pausePerformance * 0.15) +         // 15% weight for speech pauses
     (correctnessPerformance * 0.40)     // 20% weight for answer correctness (using the new score)
   );
 
@@ -48,7 +48,7 @@ const OverallPerformance = ({
       count: overallStats.totalGrammarErrors, 
       unit: 'mistakes',
       showPerformance: true,
-      weight: '20%'
+      weight: '25%'
     },
     { 
       label: 'Pronunciation', 
@@ -56,7 +56,7 @@ const OverallPerformance = ({
       count: overallStats.totalPronunciationErrors, 
       unit: 'challenges',
       showPerformance: true,
-      weight: '15%'
+      weight: '5%'
     },
     { 
       label: 'Fluency', 
@@ -72,7 +72,7 @@ const OverallPerformance = ({
       count: overallStats.totalPauses, 
       unit: 'pauses',
       showPerformance: true,
-      weight: '10%'
+      weight: '15%'
     },
     { 
       label: 'Vocabulary', 
@@ -149,7 +149,7 @@ const OverallPerformance = ({
               {getScoreGrade(calculatedOverallScore)}
             </div>
             <p className="text-sm text-gray-600">
-              Based on Grammar (20%), Pronunciation (15%), Fluency (15%), Speech Pauses (10%), and Answer Correctness (40%)
+              Based on Grammar (25%), Pronunciation (5%), Fluency (15%), Speech Pauses (15%), and Answer Correctness (40%)
             </p>
           </div>
         </motion.div>

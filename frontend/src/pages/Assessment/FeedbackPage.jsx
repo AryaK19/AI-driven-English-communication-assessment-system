@@ -154,8 +154,8 @@ const FeedbackPage = () => {
   const totalQuestions = assessmentData.questions.length;
   
   // Calculate performance percentages
-  const grammarPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalGrammarErrors / totalQuestions * 20)));
-  const pronunciationPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalPronunciationErrors / totalQuestions * 20)));
+  const grammarPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalGrammarErrors / totalQuestions * 10)));
+  const pronunciationPerformance = Math.max(0, Math.min(100, 100 - (overallStats.totalPronunciationErrors / totalQuestions * 5)));
   const fluencyPerformance = overallStats.fluencyCount > 0 
     ? formatScore(overallStats.totalFluencyScore / overallStats.fluencyCount)
     : 100;
