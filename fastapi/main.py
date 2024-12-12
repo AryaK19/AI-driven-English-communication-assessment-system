@@ -75,17 +75,25 @@ async def process_audio(file: UploadFile = File(...)):
 async def analyze_text(text_data: Dict = Body(...)):
     try:
         text = text_data.get("text", "")
+        question = text_data.get("questionText", "")
+
+        logger.info(f"Analyzing text: {question} - {text}")
+
         if not text:
             return {"error": "No text provided"}
+        if not question:
+            return {"error": "No Question provided"}
             
         # Process the text using our feedback processor
-        feedback = await feedback_processor.analyze_text(text,tempFileName=temp_file_manager.temp_file_path)
+        feedback = await feedback_processor.analyze_text(text,tempFileName=temp_file_manager.temp_file_path,question=question)
 
         
 
         os.remove(temp_file_manager.temp_file_path)
         
         temp_file_manager.temp_file_path = ""
+
+        logger.info(f"Feedback: {feedback}")
 
         return feedback
         

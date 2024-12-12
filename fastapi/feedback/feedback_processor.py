@@ -141,6 +141,7 @@ class FeedbackProcessor:
                     }
                 ],
                 model="llama-3.2-3b-preview",
+                temperature=0.1,
             )
             
             analysis = response.choices[0].message.content
@@ -169,6 +170,7 @@ class FeedbackProcessor:
                     }
                 ],
                 model="llama-3.2-3b-preview",
+                temperature=0.1,
             )
             
             analysis = response.choices[0].message.content
@@ -243,12 +245,10 @@ class FeedbackProcessor:
         vocabulary_analysis = analyze_vocabulary(text)
         fluency_analysis = self.analyze_fluency(text)
         pause_analysis = await self.analyze_pauses(text,tempFileName)
+        correctness_analysis = check_answer_correctness(question, text)
     
         
         # Add answer correctness analysis if question is provided
-        correctness_analysis = None
-        if question:
-            correctness_analysis = check_answer_correctness(question, text)
 
         feedback = {
             "grammar": grammar_analysis,
@@ -256,11 +256,10 @@ class FeedbackProcessor:
             "vocabulary": vocabulary_analysis,
             "fluency": fluency_analysis,
             "pause_count": pause_analysis["total_pauses"],
+            "correctness": correctness_analysis,
             "text": text
         }
 
-        if correctness_analysis:
-            feedback["correctness"] = correctness_analysis
 
         
 

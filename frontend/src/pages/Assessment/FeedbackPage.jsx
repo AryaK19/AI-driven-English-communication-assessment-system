@@ -18,6 +18,7 @@ const FeedbackPage = () => {
 
   useEffect(() => {
     const storedData = localStorage.getItem('assessmentFeedback');
+    console.log("Stored data:", storedData);
     if (storedData) {
       setAssessmentData(JSON.parse(storedData));
     }
