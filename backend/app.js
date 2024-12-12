@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import uploadRouter from "./routes/upload.js";
 import userRouter from "./routes/userRoutes.js";
+import assessmentRouter from "./routes/assessmentRoutes.js";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // Routes
 app.use("/upload", uploadRouter);
 app.use("/users", userRouter);
+app.use("/assessments", assessmentRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the API" });
