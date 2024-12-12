@@ -1,9 +1,12 @@
+const API_FASTAPI_URL = import.meta.env.VITE_API_FASTAPI_URL;
+
+
 export const fetchQuestions = async (setupData) => {
   if (!setupData) {
     throw new Error('Assessment setup data is required');
   }
 
-  const response = await fetch('http://localhost:8000/generate-questions', {
+  const response = await fetch(`${API_FASTAPI_URL}/generate-questions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

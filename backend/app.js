@@ -9,12 +9,18 @@ import assessmentRouter from "./routes/assessmentRoutes.js";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT;
+
+const PRODUCTION_URL = process.env.API_PRODUCTION_URL;
+
+const FRONTEND_URL = process.env.API_FRONTEND_URL;
+
+const MONGO_URL = process.env.MONGODB_URI;
 
 // Configure CORS with specific options
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"], // Allow both Vite dev server and production
+    origin: [FRONTEND_URL, PRODUCTION_URL], // Allow both Vite dev server and production
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type", 
@@ -52,7 +58,8 @@ app.use((err, req, res, next) => {
 });
 
 // MongoDB connection
-mongoose.connect("mongodb+srv://aryakadam348:arya@cluster0.awsev.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+
+mongoose.connect(`${MONGO_URL}`)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err));
 

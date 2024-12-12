@@ -11,11 +11,17 @@ import os
 from audioProcessor import process_audio_file
 from typing import Dict, List
 
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+API_FRONTEND_URL = os.getenv("API_FRONTEND_URL")
 
 class TempFileManager:
     def __init__(self):
@@ -25,7 +31,7 @@ temp_file_manager = TempFileManager()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[API_FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

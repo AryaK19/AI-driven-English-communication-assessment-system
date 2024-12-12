@@ -1,3 +1,4 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const uploadVideo = async (videoUrl, index) => {
     const response = await fetch(videoUrl);
@@ -8,7 +9,7 @@ export const uploadVideo = async (videoUrl, index) => {
     formData.append("file", blob, `question_${index}.webm`);
     formData.append("questionIndex", index.toString());
   
-    const uploadResponse = await fetch(`http://localhost:5000/upload`, {
+    const uploadResponse = await fetch(`${API_BASE_URL}/upload`, {
       method: "POST",
       body: formData,
     });

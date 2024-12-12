@@ -16,8 +16,16 @@ function Home() {
   const navigate = useNavigate();
 
   const supportedLanguages = [
-    "English", "German", "French", "Italian", 
-    "Portuguese", "Hindi", "Spanish", "Thai"
+    "English",
+    "Hindi" ,
+    "Bengali",
+    // "Gujarati",
+    "Kannada",
+    // "Malayalam",
+    "Marathi",
+    "Punjabi",
+    "Tamil" ,
+    "Telugu" ,
   ];
 
   const difficultyLevels = [
