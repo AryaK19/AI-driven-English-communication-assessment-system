@@ -7,27 +7,40 @@ ADVANCED_VOCABULARY = {
         "comprehend", "contemplate", "demonstrate", "derive", "elaborate",
         "emphasize", "enhance", "establish", "evaluate", "facilitate",
         "generate", "implement", "incorporate", "investigate", "maintain",
-        "optimize", "perceive", "pursue", "resolve", "synthesize", "utilize"
+        "optimize", "perceive", "pursue", "resolve", "synthesize", "utilize",
+        "articulate", "cultivate", "differentiate", "exemplify", "formulate",
+        "hypothesize", "integrate", "leverage", "mediate", "navigate",
+        "orchestrate", "quantify", "rationalize", "streamline", "validate"
     },
     "adjectives": {
         "abundant", "adequate", "comprehensive", "crucial", "diverse",
         "efficient", "fundamental", "innovative", "integral", "optimal",
         "precise", "prominent", "robust", "significant", "sophisticated",
-        "substantial", "versatile"
+        "substantial", "versatile", "analytical", "cohesive", "empirical",
+        "holistic", "imperative", "methodical", "nuanced", "paramount",
+        "pragmatic", "quintessential", "systematic", "theoretical"
     },
     "adverbs": {
         "accordingly", "consequently", "effectively", "extensively",
         "fundamentally", "predominantly", "precisely", "primarily",
-        "significantly", "substantially", "thoroughly"
+        "significantly", "substantially", "thoroughly", "analytically",
+        "coherently", "decisively", "empirically", "intrinsically",
+        "methodically", "objectively", "pragmatically", "strategically"
     },
     "transitions": {
         "additionally", "consequently", "furthermore", "however",
-        "moreover", "nevertheless", "subsequently", "therefore"
+        "moreover", "nevertheless", "subsequently", "therefore",
+        "alternatively", "comparatively", "conversely", "correspondingly",
+        "essentially", "ultimately", "notwithstanding", "similarly",
+        "specifically", "whereas"
     },
     "academic": {
         "analysis", "approach", "concept", "context", "data",
         "evidence", "framework", "hypothesis", "methodology",
-        "perspective", "principle", "process", "research", "theory"
+        "perspective", "principle", "process", "research", "theory",
+        "algorithm", "correlation", "discretion", "paradigm",
+        "parameter", "phenomenon", "protocol", "synthesis",
+        "threshold", "variable", "velocity", "criterion"
     }
 }
 

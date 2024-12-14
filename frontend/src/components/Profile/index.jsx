@@ -30,7 +30,7 @@ import { auth } from "./../../../firebase/firebase";
 import LogoutOutlined from "@ant-design/icons/LogoutOutlined";
 import SettingOutlined from "@ant-design/icons/SettingOutlined";
 import UserOutlined from "@ant-design/icons/UserOutlined";
-import avatar1 from "../../assets/users/avatar-1.png";
+import avatar1 from "../../assets/users/user.png";
 
 // Accessible tab panel wrapper with ARIA support
 function TabPanel({ children, value, index, ...other }) {

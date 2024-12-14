@@ -28,6 +28,16 @@ const AssessmentSection = ({ feedback }) => {
       showScore: true
     },
     {
+      title: 'Speech Pauses',
+      content: feedback.pauses.total_pauses !== undefined,
+      count: feedback.pauses.total_pauses,
+      pause_details: feedback.pauses.pause_details,
+      total_durations: feedback.pauses.total_pause_duration,
+      bgColor: 'bg-yellow-100',
+      textColor: 'text-yellow-700',
+      showScore: false
+    },
+    {
       title: 'Grammar Assessment',
       content: feedback.grammar,
       errorCount: feedback.grammar.error_count,
@@ -55,16 +65,6 @@ const AssessmentSection = ({ feedback }) => {
       bgColor: 'bg-blue-100',
       textColor: 'text-brand-blue',
       showScore: true
-    },
-    {
-      title: 'Speech Pauses',
-      content: feedback.pauses.total_pauses !== undefined,
-      count: feedback.pauses.total_pauses,
-      pause_details: feedback.pauses.pause_details,
-      total_durations: feedback.pauses.total_pause_duration,
-      bgColor: 'bg-yellow-100',
-      textColor: 'text-yellow-700',
-      showScore: false
     },
     {
       title: 'Vocabulary Assessment',
@@ -210,7 +210,7 @@ const AssessmentSection = ({ feedback }) => {
   );
 
   const renderPauseContent = (section) => (
-    <div className="mt-2">
+    <div className="mt-2 space-y-3">
       <p className="text-sm text-gray-700">
         Detected {section.count} pauses in your speech
       </p>
@@ -221,6 +221,36 @@ const AssessmentSection = ({ feedback }) => {
           ? 'Moderate number of pauses - your speech flow is acceptable'
           : 'Good speech flow with minimal pauses'}
       </p>
+      <div className="space-y-2">
+        {section.pause_details.map((pause, i) => (
+          <motion.div
+  key={i}
+  initial={{ opacity: 0, x: -20 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ delay: i * 0.05 }}
+  className="text-sm bg-yellow-50 p-2 rounded-lg shadow-sm"
+>
+  <div className="flex justify-between items-center mb-1">
+    <span className="font-medium text-yellow-700 text-xs">
+      Pause {i + 1}
+    </span>
+    <span className="text-xs bg-yellow-100 px-2 py-0.5 rounded-full">
+      {pause.duration.toFixed(1)}s
+    </span>
+  </div>
+  <div className="flex justify-between items-center text-xs text-gray-600">
+    <div className="flex items-center gap-4">
+      <span>
+        <span className="text-gray-500">Start:</span> {pause.start.toFixed(1)}s
+      </span>
+      <span>
+        <span className="text-gray-500">End:</span> {pause.end.toFixed(1)}s
+      </span>
+    </div>
+  </div>
+</motion.div>
+        ))}
+      </div>
     </div>
   );
 
@@ -247,11 +277,16 @@ const AssessmentSection = ({ feedback }) => {
                   {section.errorCount} {section.title === 'Grammar Assessment' ? 'mistakes' : 'challenges'}
                 </span>
               )}
-              {section.count !== undefined && (
+            {section.count !== undefined && (
+              <div className="flex  items-center gap-4">
                 <span className={`${section.bgColor} ${section.textColor} px-2 py-0.5 rounded-full text-xs`}>
                   {section.count} pauses
                 </span>
-              )}
+                <span className={`${section.bgColor} ${section.textColor} px-2 py-0.5 rounded-full text-xs`}>
+                  {section.total_durations.toFixed(1)} seconds
+                </span>
+              </div>
+            )}
               
             </div>
 

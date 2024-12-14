@@ -30,7 +30,7 @@ LANGUAGE_CODES = {
 }
 
 PROMPTS = {
-    "English": "Dont correct grammatical mistakes and Strictly include hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh'",
+    "English": "Dont correct grammatical mistakes and make grammatical mistakes as much as possible and Strictly use hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh'  as much as possible",
 
     "Hindi": "वाक्यों को सही न करें और हिचकिचाहट के संकेत जैसे 'हम्म', 'उम्', 'उह', 'आआ', 'आ', 'मम्म', 'मम', 'आह', 'एर', 'एर्म', 'उहम', 'उहमम', 'उहुँ', 'उहुह' शामिल करें।",
 
