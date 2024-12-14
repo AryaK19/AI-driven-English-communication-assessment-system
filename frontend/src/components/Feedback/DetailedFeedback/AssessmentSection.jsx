@@ -9,6 +9,8 @@ const AssessmentSection = ({ feedback }) => {
     return score;
   };
 
+  console.log(feedback);
+
 
 
   const sections = [
@@ -56,8 +58,10 @@ const AssessmentSection = ({ feedback }) => {
     },
     {
       title: 'Speech Pauses',
-      content: feedback.pause_count !== undefined,
-      count: feedback.pause_count,
+      content: feedback.pauses.total_pauses !== undefined,
+      count: feedback.pauses.total_pauses,
+      pause_details: feedback.pauses.pause_details,
+      total_durations: feedback.pauses.total_pause_duration,
       bgColor: 'bg-yellow-100',
       textColor: 'text-yellow-700',
       showScore: false
@@ -248,7 +252,10 @@ const AssessmentSection = ({ feedback }) => {
                   {section.count} pauses
                 </span>
               )}
+              
             </div>
+
+            {/* console.log("THISSIS SI SISIIS SSI",section.title); */}
 
             {section.title === 'Answer Assessment' && renderCorrectnessContent(section)}
             {section.errors && renderErrors(section.errors, section.title === 'Grammar Assessment')}

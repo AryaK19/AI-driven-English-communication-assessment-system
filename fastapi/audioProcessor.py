@@ -30,7 +30,7 @@ LANGUAGE_CODES = {
 }
 
 PROMPTS = {
-    "English": "Dont correct sentences and Include hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh'",
+    "English": "Dont correct grammatical mistakes and Strictly include hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh'",
 
     "Hindi": "वाक्यों को सही न करें और हिचकिचाहट के संकेत जैसे 'हम्म', 'उम्', 'उह', 'आआ', 'आ', 'मम्म', 'मम', 'आह', 'एर', 'एर्म', 'उहम', 'उहमम', 'उहुँ', 'उहुह' शामिल करें।",
 
@@ -79,11 +79,11 @@ async def process_audio_file(file_path: str, language: str = "English") -> dict:
         with open(file_path, "rb") as file:
             transcription = client.audio.transcriptions.create(
                 file=(os.path.basename(file_path), file.read()),
-                model="whisper-large-v3-turbo",
-                prompt=PROMPTS.get(language),
+                model="whisper-large-v3",
+                prompt=PROMPTS.get(language) ,
                 response_format="json",
                 language=language_code,
-                temperature=0.1
+                temperature=0
             )
 
         return {

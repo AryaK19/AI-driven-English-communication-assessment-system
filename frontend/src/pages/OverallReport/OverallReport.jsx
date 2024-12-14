@@ -25,6 +25,8 @@ function OverallReport() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log(reports);
+
   useEffect(() => {
     const fetchAssessments = async () => {
       try {
@@ -226,7 +228,7 @@ function OverallReport() {
                 <div className="flex items-center gap-2 text-gray-500">
                   <Clock className="w-4 h-4" />
                   <span>
-                    {new Date(report.dateAndTime).toLocaleTimeString("en-US", {
+                    {new Date(report.date).toLocaleTimeString("en-US", {
                       hour: "2-digit",
                       minute: "2-digit",
                       second: "2-digit",

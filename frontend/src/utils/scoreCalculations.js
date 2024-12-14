@@ -25,8 +25,8 @@ export const formatScore = (score) => {
           acc.totalCorrectnessScore += formatScore(questionFeedback.correctness.score);
           acc.correctnessCount += 1;
         }
-        if (questionFeedback.pause_count !== undefined) {
-          acc.totalPauses += questionFeedback.pause_count;
+        if (questionFeedback.pauses.total_pauses !== undefined) {
+          acc.totalPauses += questionFeedback.pauses.total_pauses;
           acc.pauseCount += 1;
         }
       }

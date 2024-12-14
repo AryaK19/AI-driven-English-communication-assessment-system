@@ -246,6 +246,7 @@ class FeedbackProcessor:
 
         pause_analysis = await self.analyze_pauses(text, tempFileName)
         correctness_analysis = check_answer_correctness(question, text)
+   
 
         feedback = {
             "grammar": grammar_analysis,

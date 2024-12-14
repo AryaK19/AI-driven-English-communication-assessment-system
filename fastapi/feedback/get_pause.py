@@ -4,11 +4,15 @@ import librosa
 import numpy as np
 from scipy.signal import butter, filtfilt
 
+logging.basicConfig(level=logging.INFO)
 
 
-def get_pause_count(audio_path, threshold_seconds=1, amplitude_threshold=0.005):
+
+def get_pause_count(audio_path, threshold_seconds=0.8, amplitude_threshold=0.015):
     # Load the audio file
     audio, sample_rate = librosa.load(audio_path, sr=None)
+
+    logging.info(f"Loaded audio file with sample rate {audio_path}")
     
     # Calculate the time resolution
     hop_length = 512
@@ -26,6 +30,7 @@ def get_pause_count(audio_path, threshold_seconds=1, amplitude_threshold=0.005):
     
     for i in range(len(audio_envelope)):
         # Check if current segment is below amplitude threshold
+        logging.info(f"Amplitude: {audio_envelope[i]}")
         if audio_envelope[i] < amplitude_threshold:
             if not in_pause:
                 # Start of a pause

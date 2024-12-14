@@ -41,7 +41,7 @@ def analyze_response(question: str, answer: str) -> Tuple[float, str]:
             "quality_feedback": "short explanation of quality score"
         }}
 
-        MOSTLY DONT JUDGE THE ANSWERS STRICKLY , TRY TO GIVE HIGHER MARKS.
+        MOSTLY DONT JUDGE THE ANSWERS STRICKLY , TRY TO GIVE HIGHER MARKS IF SOMEWHAT RELATED (25-35 points).
         
         Base your scoring on:
         - Relevance: How well the answer addresses the specific question (0-50 points)

@@ -99,7 +99,7 @@ async def analyze_text(text_data: Dict = Body(...)):
         
         temp_file_manager.temp_file_path = ""
 
-        # logger.info(f"Feedback: {feedback}")
+        logger.info(f"Feedback: {feedback}")
 
         return feedback
         
