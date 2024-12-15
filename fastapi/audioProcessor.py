@@ -31,7 +31,7 @@ LANGUAGE_CODES = {
 
 PROMPTS = {
     # "English": "Dont correct grammatical mistakes and make grammatical mistakes as much as possible and Strictly use hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh' even if not present in the audio.",
-    "English": "Hi folks. I'm going to umm...  read aloud from this book hmm. I apologize for my aaaa.... my grammar being bad and I sound a bit uhh... a bit stuffy or congested. I haven't gotten over this cold yet. I might clear my throat... *ahem* from time to time too."
+    "English": "Hi folks. I'm going to umm...  read aloud from this book hmm. I apologize for my aaaa.... my grammar being bad and I sound a bit uhh... a bit stuffy or congested. I haven't gotten over this cold yet. I might hmm... clear my throat... *ahem* from time to time too."
 ,
 
     "Hindi": "वाक्यों को सही न करें और हिचकिचाहट के संकेत जैसे 'हम्म', 'उम्', 'उह', 'आआ', 'आ', 'मम्म', 'मम', 'आह', 'एर', 'एर्म', 'उहम', 'उहमम', 'उहुँ', 'उहुह' शामिल करें।",
