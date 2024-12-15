@@ -65,7 +65,7 @@ const IdealAnswerSection = ({
                 { title: 'Ideal Answer', content: idealAnswer.ideal_answer },
                 { title: 'Your Strengths', content: idealAnswer.user_strengths },
                 { title: 'Areas for Improvement', content: idealAnswer.areas_for_improvement },
-                { title: 'Improvement Suggestions', content: idealAnswer.improvement_suggestions }
+                // { title: 'Improvement Suggestions', content: idealAnswer.improvement_suggestions }
               ].map((item, i) => (
                 <motion.div
                   key={i}

@@ -25,6 +25,7 @@ export const getIdealAnswer = async (question, answer) => {
       question,
       answer
     });
+    console.log("IDEAL ANSWER::::::::",response.data);
     return response.data;
   } catch (error) {
     console.error('Error getting ideal answer:', error);

@@ -4,7 +4,7 @@ from routers import users
 from config.database import init_db
 from feedback.feedback_processor import FeedbackProcessor
 from feedback.check_correctness import check_answer_correctness
-from feedback.ideal_answer import ideal_answer_generator
+from feedback.ideal_answer import IdealAnswerGenerator
 from setupGeneration import generate_assessment_questions
 import logging
 import os
@@ -28,6 +28,7 @@ class TempFileManager:
         self.temp_file_path = ""
 
 temp_file_manager = TempFileManager()
+ideal_answer_generator = IdealAnswerGenerator()
 
 app.add_middleware(
     CORSMiddleware,

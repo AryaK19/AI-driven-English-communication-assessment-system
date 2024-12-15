@@ -57,7 +57,9 @@ const FeedbackPage = () => {
       // Parse response data, handling both string and object formats
       let parsedData;
       try {
-        parsedData = typeof result.data === 'string' ? JSON.parse(result.data) : result.data;
+        console.log("Ideal answer response:", result.data);
+        parsedData = JSON.parse(result.data);
+
       } catch (e) {
         parsedData = {
           ideal_answer: 'Error parsing response try again...',
