@@ -63,11 +63,9 @@ class IdealAnswerGenerator:
             3. Areas where the user's answer could be improved
             
             Format the response ONLY as a JSON with the following structure. THIS STRUCTURE SHOULD BE MAINTAINED STRICTLY:
-            {
-                "ideal_answer": "corrected gramatical answer with correct langauge as question",
-                "user_strengths": "what the user did well with correct langauge as question",
-                "areas_for_improvement": "where the answer could be improved with correct langauge as question",
-            }
+                {"ideal_answer": "corrected gramatical answer",
+                "user_strengths": "what the user did well ",
+                "areas_for_improvement": "where the answer could be improved"}
 
             """
 
@@ -88,10 +86,11 @@ class IdealAnswerGenerator:
     
             response = chat_completion.choices[0].message.content
 
-            logging.info(f"LLM response: {response}")
+            logging.info(f"LLM response: {chat_completion.choices[0].message.content}")
             
             # Add JSON parsing with error handling
             try:
+
                 
                 return {
                     "status": "success",

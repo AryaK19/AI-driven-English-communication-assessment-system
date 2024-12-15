@@ -176,7 +176,7 @@ const AssessmentSection = ({ feedback }) => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="text-sm bg-blue-50 p-2 rounded"
+            className="text-sm bg-blue-50 p-2 rounded-lg shadow-sm"
           >
             <span className="font-medium text-brand-blue">"{filler.word}"</span>
             <p className="text-xs text-gray-600 mt-1">
@@ -214,7 +214,7 @@ const AssessmentSection = ({ feedback }) => {
       <p className="text-sm text-gray-700">
         Detected {section.count} pauses in your speech
       </p>
-      <p className="text-xs text-gray-600 mt-2">
+      <p className="text-sm text-gray-600 italic">
         {section.count > 8 
           ? 'Consider reducing the number of pauses to improve speech fluency'
           : section.count > 4
@@ -224,31 +224,31 @@ const AssessmentSection = ({ feedback }) => {
       <div className="space-y-2">
         {section.pause_details.map((pause, i) => (
           <motion.div
-  key={i}
-  initial={{ opacity: 0, x: -20 }}
-  animate={{ opacity: 1, x: 0 }}
-  transition={{ delay: i * 0.05 }}
-  className="text-sm bg-yellow-50 p-2 rounded-lg shadow-sm"
->
-  <div className="flex justify-between items-center mb-1">
-    <span className="font-medium text-yellow-700 text-xs">
-      Pause {i + 1}
-    </span>
-    <span className="text-xs bg-yellow-100 px-2 py-0.5 rounded-full">
-      {pause.duration.toFixed(1)}s
-    </span>
-  </div>
-  <div className="flex justify-between items-center text-xs text-gray-600">
-    <div className="flex items-center gap-4">
-      <span>
-        <span className="text-gray-500">Start:</span> {pause.start.toFixed(1)}s
-      </span>
-      <span>
-        <span className="text-gray-500">End:</span> {pause.end.toFixed(1)}s
-      </span>
-    </div>
-  </div>
-</motion.div>
+          key={i}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.05 }}
+          className="text-sm bg-yellow-50 p-2 rounded-lg shadow-sm"
+        >
+          <div className="flex justify-between items-center mb-1">
+            <span className="font-medium text-yellow-700 text-xs">
+              Pause {i + 1}
+            </span>
+            <span className="text-xs bg-yellow-100 px-2 py-0.5 rounded-full">
+              {pause.duration.toFixed(1)}s
+            </span>
+          </div>
+          <div className="flex justify-between items-center text-xs text-gray-600">
+            <div className="flex items-center gap-4">
+              <span>
+                <span className="text-gray-500">Start:</span> {pause.start.toFixed(1)}s
+              </span>
+              <span>
+                <span className="text-gray-500">End:</span> {pause.end.toFixed(1)}s
+              </span>
+            </div>
+          </div>
+        </motion.div>
         ))}
       </div>
     </div>
