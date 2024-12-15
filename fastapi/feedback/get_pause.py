@@ -7,7 +7,7 @@ from scipy.signal import butter, filtfilt
 
 logging.basicConfig(level=logging.INFO)
 
-def get_pause_count(audio_path, threshold_seconds=0.8, amplitude_threshold=0.02):
+def get_pause_count(audio_path, threshold_seconds=0.9, amplitude_threshold=0.02):
     """
     Analyze audio file for pauses/silences.
     """
@@ -41,6 +41,7 @@ def get_pause_count(audio_path, threshold_seconds=0.8, amplitude_threshold=0.02)
         
         # Reduce logging frequency
         for i in range(len(audio_envelope)):
+            logging.info(f"Time: {times[i]:.2f}, Amplitude: {audio_envelope[i]:.2f}")
             if audio_envelope[i] < amplitude_threshold:
                 if not in_pause:
                     pause_start = times[i]

@@ -76,6 +76,7 @@ class FeedbackProcessor:
         # List of common filler words and hesitation sounds
         filler_patterns = [
             r'\b(hmm+|um+|uh+|aaa+|aa+|mmm+|mm+|ah+|er+|erm+|uhm+|uhmm+|uhhuh|uhuh)\b',
+            r'\.{2,}',
             r'\b(like|you know|basically|actually|literally|sort of|kind of)\b'
         ]
 

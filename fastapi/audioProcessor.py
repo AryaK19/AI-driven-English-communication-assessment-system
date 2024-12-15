@@ -30,7 +30,9 @@ LANGUAGE_CODES = {
 }
 
 PROMPTS = {
-    "English": "Dont correct grammatical mistakes and make grammatical mistakes as much as possible and Strictly use hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh' even if not present in the audio.",
+    # "English": "Dont correct grammatical mistakes and make grammatical mistakes as much as possible and Strictly use hesitation markers like 'hmm', 'um', 'uh', 'aaa', 'aa', 'mmm', 'mm', 'ah', 'er', 'erm', 'uhm', 'uhmm', 'uhhuh', 'uhuh' even if not present in the audio.",
+    "English": "Hi folks. I'm going to umm...  read aloud from this book hmmm. I apologize if I sound a bit uhh... a bit stuffy or congested. I haven't gotten over this cold yet. I might clear my throat... *ahem* from time to time too."
+,
 
     "Hindi": "वाक्यों को सही न करें और हिचकिचाहट के संकेत जैसे 'हम्म', 'उम्', 'उह', 'आआ', 'आ', 'मम्म', 'मम', 'आह', 'एर', 'एर्म', 'उहम', 'उहमम', 'उहुँ', 'उहुह' शामिल करें।",
 
@@ -79,8 +81,8 @@ async def process_audio_file(file_path: str, language: str = "English") -> dict:
         with open(file_path, "rb") as file:
             transcription = client.audio.transcriptions.create(
                 file=(os.path.basename(file_path), file.read()),
-                model="whisper-large-v3",
-                prompt=PROMPTS.get(language) ,
+                model="whisper-large-v3-turbo",
+                prompt=PROMPTS[language] ,
                 response_format="json",
                 language=language_code,
                 temperature=0
