@@ -31,7 +31,7 @@ def analyze_response(question: str, answer: str) -> Tuple[float, str]:
         Analyze the following answer for its relevance to the question and quality of explanation.
         
         Question: {question}
-        User Answer: {answer}
+        User Responce: {answer}
         
         Provide a detailed analysis and give the scores in JSON format with the following JSON and point structure ( STRICTLY MAINTAIN A PERFECT STRUCTURE AS BELOW):
         {{
@@ -41,11 +41,8 @@ def analyze_response(question: str, answer: str) -> Tuple[float, str]:
             "quality_feedback": "short explanation of quality score"
         }}
 
-        MOSTLY DONT JUDGE THE ANSWERS STRICKLY , TRY TO GIVE HIGHER MARKS IF SOMEWHAT RELATED (25-35 points) and 40-50 MARKS ID GOOD ENOUGH.
+        MOSTLY DONT JUDGE THE ANSWERS STRICKLY , TRY TO GIVE HIGHER MARKS IF SOMEWHAT RELATED (25-35 points) and 40-50 points IF THE ANSWER GOOD ENOUGH.
         
-        Base your scoring on:
-        - Relevance: How well the answer addresses the specific question (0-50 points)
-        - Quality: Clarity, depth, and coherence of the explanation (0-50 points)
         """
 
 

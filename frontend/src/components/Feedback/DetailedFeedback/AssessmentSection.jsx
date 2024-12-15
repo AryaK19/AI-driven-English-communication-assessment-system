@@ -1,4 +1,3 @@
-// src/components/Feedback/DetailedFeedback/AssessmentSection.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
 
@@ -10,8 +9,6 @@ const AssessmentSection = ({ feedback }) => {
   };
 
   console.log(feedback);
-
-
 
   const sections = [
     {
@@ -101,6 +98,90 @@ const AssessmentSection = ({ feedback }) => {
     </ul>
   );
 
+  const renderGrammarContent = (section) => (
+    <div className="mt-2 space-y-3">
+      <p className="text-sm text-gray-700">
+        Detected {section.errorCount} grammatical mistakes in your speech
+      </p>
+      <p className="text-xs text-gray-600 mt-2">
+        {section.errorCount > 5 
+          ? 'Consider reviewing these errors to improve your grammar'
+          : section.errorCount > 2
+          ? 'Moderate number of errors - your grammar is acceptable'
+          : 'Good grammar with minimal errors'}
+      </p>
+      <div className="space-y-2">
+        {section.errors.map((error, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="text-sm bg-red-50 p-2 rounded-lg shadow-sm"
+          >
+            <div className="flex justify-between items-center mb-1">
+              {/* <span className="font-medium text-brand-red text-xs">
+                Error {i + 1}
+              </span> */}
+              {/* <span className="text-xs bg-red-100 text-brand-red px-2 py-0.5 rounded-full">
+                Correction Available
+              </span> */}
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-brand-red">{error.word}</span>
+                <span className="text-gray-400">→</span>
+                <span className="text-brand-blue">{error.suggestion}</span>
+              </div>
+              <p className="text-xs text-gray-600">{error.explanation}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+  
+  const renderPronunciationContent = (section) => (
+    <div className="mt-2 space-y-3">
+      <p className="text-sm text-gray-700">
+        Detected {section.errorCount} pronunciation challenges in your speech
+      </p>
+      <p className="text-xs text-gray-600 mt-2">
+        {section.errorCount > 5 
+          ? 'Consider practicing these words to improve pronunciation'
+          : section.errorCount > 2
+          ? 'Moderate number of challenges - your pronunciation is understandable'
+          : 'Good pronunciation with minimal challenges'}
+      </p>
+      <div className="space-y-2">
+        {section.errors.map((error, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="text-sm bg-purple-50 p-2 rounded-lg shadow-sm"
+          >
+            <div className="flex justify-between items-center mb-1">
+              {/* <span className="font-medium text-brand-purple text-xs">
+                Word {i + 1}
+              </span> */}
+              {/* <span className="text-xs bg-purple-100 text-brand-purple px-2 py-0.5 rounded-full">
+                IPA Available
+              </span> */}
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{error.word}</span>
+                <span className="text-brand-purple">/{error.phonetic}/</span>
+              </div>
+              <p className="text-xs text-gray-600">{error.explanation}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
   const renderCorrectnessContent = (section) => (
     <div className="mt-2 space-y-3">
       <div className="grid grid-cols-2 gap-4">
@@ -224,31 +305,31 @@ const AssessmentSection = ({ feedback }) => {
       <div className="space-y-2">
         {section.pause_details.map((pause, i) => (
           <motion.div
-          key={i}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.05 }}
-          className="text-sm bg-yellow-50 p-2 rounded-lg shadow-sm"
-        >
-          <div className="flex justify-between items-center mb-1">
-            <span className="font-medium text-yellow-700 text-xs">
-              Pause {i + 1}
-            </span>
-            <span className="text-xs bg-yellow-100 px-2 py-0.5 rounded-full">
-              {pause.duration.toFixed(1)}s
-            </span>
-          </div>
-          <div className="flex justify-between items-center text-xs text-gray-600">
-            <div className="flex items-center gap-4">
-              <span>
-                <span className="text-gray-500">Start:</span> {pause.start.toFixed(1)}s
+            key={i}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="text-sm bg-yellow-50 p-2 rounded-lg shadow-sm"
+          >
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-medium text-yellow-700 text-xs">
+                Pause {i + 1}
               </span>
-              <span>
-                <span className="text-gray-500">End:</span> {pause.end.toFixed(1)}s
+              <span className="text-xs bg-yellow-100 px-2 py-0.5 rounded-full">
+                {pause.duration.toFixed(1)}s
               </span>
             </div>
-          </div>
-        </motion.div>
+            <div className="flex justify-between items-center text-xs text-gray-600">
+              <div className="flex items-center gap-4">
+                <span>
+                  <span className="text-gray-500">Start:</span> {pause.start.toFixed(1)}s
+                </span>
+                <span>
+                  <span className="text-gray-500">End:</span> {pause.end.toFixed(1)}s
+                </span>
+              </div>
+            </div>
+          </motion.div>
         ))}
       </div>
     </div>
@@ -277,26 +358,26 @@ const AssessmentSection = ({ feedback }) => {
                   {section.errorCount} {section.title === 'Grammar Assessment' ? 'mistakes' : 'challenges'}
                 </span>
               )}
-            {section.count !== undefined && (
-              <div className="flex  items-center gap-4">
-                <span className={`${section.bgColor} ${section.textColor} px-2 py-0.5 rounded-full text-xs`}>
-                  {section.count} pauses
-                </span>
-                <span className={`${section.bgColor} ${section.textColor} px-2 py-0.5 rounded-full text-xs`}>
-                  {section.total_durations.toFixed(1)} seconds
-                </span>
-              </div>
-            )}
-              
+              {section.count !== undefined && (
+                <div className="flex items-center gap-4">
+                  <span className={`${section.bgColor} ${section.textColor} px-2 py-0.5 rounded-full text-xs`}>
+                    {section.count} pauses
+                  </span>
+                  <span className={`${section.bgColor} ${section.textColor} px-2 py-0.5 rounded-full text-xs`}>
+                    {section.total_durations.toFixed(1)} seconds
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* console.log("THISSIS SI SISIIS SSI",section.title); */}
-
             {section.title === 'Answer Assessment' && renderCorrectnessContent(section)}
-            {section.errors && renderErrors(section.errors, section.title === 'Grammar Assessment')}
+            {/* {section.errors && renderErrors(section.errors, section.title === 'Grammar Assessment')} */}
             {section.title === 'Fluency Assessment' && section.fillerWords && renderFluencyContent(section)}
             {section.title === 'Vocabulary Assessment' && section.advancedWords && renderVocabularyContent(section)}
             {section.title === 'Speech Pauses' && renderPauseContent(section)}
+            {section.title === 'Grammar Assessment' && renderGrammarContent(section)}
+            {section.title === 'Pronunciation Assessment' && renderPronunciationContent(section)}
+
           </motion.div>
         )
       )}
