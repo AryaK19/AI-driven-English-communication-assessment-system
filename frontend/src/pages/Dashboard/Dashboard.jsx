@@ -7,6 +7,7 @@ import {
   BookOpen,
   MessageSquare,
   ChevronRight,
+  Briefcase,
 } from "lucide-react";
 
 function Dashboard() {
@@ -21,6 +22,15 @@ function Dashboard() {
       color: "bg-brand-blue",
       count: "Custom Tests Available",
       path: "assessment/setup",
+    },
+    {
+      title: "Interview Assessment",
+      icon: <Briefcase className="w-8 h-8" />,
+      description:
+        "Practice job interviews with AI-powered feedback and analysis",
+      color: "bg-brand-yellow",
+      count: "AI Interview Prep",
+      path: "interview/setup",
     },
   ];
 

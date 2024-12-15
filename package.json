@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "frontend": "cd frontend && npm i && npm run dev",
     "backend": "cd backend && npm i && nodemon app.js",
-    "fastapi": "cd fastapi && .\\venv\\Scripts\\activate && uvicorn main:app --reload --port 8000",
-    "fastapi-unix": "cd fastApi && source venv/bin/activate && uvicorn main:app --reload --port 8000",
+    "fastapi": "cd fastapi && conda activate venv && uvicorn main:app --reload --port 8000",
+    "fastapi-unix": "cd fastApi && conda activate venv && uvicorn main:app --reload --port 8000",
     "dev": "concurrently -k  \"npm run backend\" \"npm run frontend\" \"npm run fastapi\"",
     "dev-unix": "concurrently -k  \"npm run server\" \"npm run client\" \"npm run fastapi-unix\""
   },

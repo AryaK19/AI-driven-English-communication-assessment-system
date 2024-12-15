@@ -10,6 +10,7 @@ import {
 } from "./pages/Assessment";
 import { OverallReport } from "./pages/OverallReport";
 import OverallReportLayout from "./layouts/OverallReportLayout";
+import InterviewSetup from "./pages/Interview";
 
 import { Login, Register } from "./pages/authentication";
 import { Home } from "./pages/Home";
@@ -44,6 +45,10 @@ function App() {
     { path: "feedback", element: <FeedbackPage /> },
   ];
 
+  const interviewRoutes = [
+    { path: "setup", element: <InterviewSetup /> },
+  ];
+
   return (
     <Router>
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -65,6 +70,13 @@ function App() {
                 <Route
                   key={path}
                   path={`assessment/${path}`}
+                  element={element}
+                />
+              ))}
+              {interviewRoutes.map(({ path, element }) => (
+                <Route
+                  key={path}
+                  path={`interview/${path}`}
                   element={element}
                 />
               ))}

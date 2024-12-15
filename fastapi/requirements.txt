@@ -13,3 +13,6 @@ groq
 scipy
 librosa
 numpy
+PyPDF2
+python-docx
+chardet
