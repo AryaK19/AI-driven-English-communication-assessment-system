@@ -257,7 +257,7 @@ const AssessmentSection = ({ feedback }) => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="text-sm bg-blue-50 p-2 rounded"
+            className="text-sm bg-blue-50 p-2 rounded-lg shadow-sm"
           >
             <span className="font-medium text-brand-blue">"{filler.word}"</span>
             <p className="text-xs text-gray-600 mt-1">
@@ -295,7 +295,7 @@ const AssessmentSection = ({ feedback }) => {
       <p className="text-sm text-gray-700">
         Detected {section.count} pauses in your speech
       </p>
-      <p className="text-xs text-gray-600 mt-2">
+      <p className="text-sm text-gray-600 italic">
         {section.count > 8 
           ? 'Consider reducing the number of pauses to improve speech fluency'
           : section.count > 4

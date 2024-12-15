@@ -13,3 +13,4 @@ groq
 scipy
 librosa
 numpy
+SoundFile
